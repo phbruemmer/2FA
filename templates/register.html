@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+    <title>register</title>
+  </head>
+  <body>
+    <section id="top">
+      <div id="items">
+        <h1>{{ type }}</h1>
+        <a href="{{ href }}">{{ linkText }}</a>
+      </div>
+    </section>
+    {% block content %}
+    <section id="main">
+      <form method="post">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="username" class="inp" />
+        <input type="email" name="email" placeholder="E-Mail" class="inp" />
+        <input type="password" name="password" placeholder="password" class="inp" />
+        <button type="submit" id="s-btn">register</button>
+      </form>
+    </section>
+    {% endblock %}
+  </body>
+</html>
