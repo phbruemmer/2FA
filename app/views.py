@@ -48,6 +48,7 @@ def register(request):
         user_objs_email = user.filter(user_email=user_email).first()
 
         if user_objs_email is None and user_objs_username is None:
+            print('verifying user credentials...')
             print("Creating new User...")
             register_user_in_database()
         else:
