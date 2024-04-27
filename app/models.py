@@ -11,3 +11,6 @@ class User(models.Model):
         max_length=60,
         help_text='Defines User Password - Encrypted and verified')
 
+    def str(self):
+        return self.username
+
