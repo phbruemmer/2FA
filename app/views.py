@@ -1,5 +1,8 @@
-from django.shortcuts import render, HttpResponse
-from .models import User
+from django.http import HttpResponse
+from django.shortcuts import render
+
+from .libraries import register_user_verification
+from .models import *
 
 
 def main(request):
@@ -8,7 +11,8 @@ def main(request):
 
 def rm_user(request):
     try:
-        User.objects.all().delete()
+        TempURL.objects.all().delete()
+        TempUser.objects.all().delete()
         ret = 'user objects deleted!'
     except Exception as ret:
         pass
@@ -16,9 +20,37 @@ def rm_user(request):
     return HttpResponse(ret)
 
 
+def verify(request, username, verify_code):
+    def move_data():
+        registeredUser = RegisteredUser(username=username,
+                                        user_email=tempUser.get(id=tempUserID).user_email,
+                                        user_password=tempUser.get(id=tempUserID).user_password)
+    context = {
+        'username': username,
+        'verify_code': verify_code
+    }
+
+    tempUser = TempUser.objects.all()
+    tempUserID = tempUser.get(username=username).id
+    tempURL = TempURL.objects.all()
+
+    user_verify_code = tempURL.get(id=tempUserID).verification_code
+
+    if verify_code == user_verify_code:
+        print("Valid verify code - Moving User Data to Database...")
+
+    else:
+        print("Invalid verify code - User Data can not be registered!")
+    try:
+        tempUser.get(id=tempUserID).delete()
+    except Exception as err:
+        print(err)
+    return render(request, 'templates/verify.html', context=context)
+
+
 def register(request):
     def register_user_in_database():
-        register_user = User(username=username, user_email=user_email, user_password=user_password)
+        register_user = TempUser(username=username, user_email=user_email, user_password=user_password)
 
         """
             - Check data before saving the User in the Database
@@ -29,8 +61,13 @@ def register(request):
         print(user_email)
         print(user_password)
 
-        register_user.save()  # SAVE USER IN DATABASE
+        register_user.save()  # SAVE USER IN TEMP DATABASE
         print(f'New User added to database - {register_user}')
+        verificationURL, verificationCode = register_user_verification.create_custom_url(username)
+        tempURL = TempURL(verification_code=verificationCode, username=username)
+        tempURL.save()
+        print(verificationURL)
+        # Send verificationURL to User
 
     context = {
         'type': 'register',
@@ -43,7 +80,7 @@ def register(request):
         user_email = request.POST.get('email')
         user_password = request.POST.get('password')
 
-        user = User.objects.all()
+        user = TempUser.objects.all()
         user_objs_username = user.filter(username=username).first()
         user_objs_email = user.filter(user_email=user_email).first()
 
@@ -73,7 +110,7 @@ def register(request):
 
 def login(request):
     def check_database():
-        user = User.objects.all()
+        user = TempUser.objects.all()
         db_username_lookup = user.filter(username=username).first()
         if db_username_lookup is not None:
             user_id = db_username_lookup.id
