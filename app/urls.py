@@ -6,6 +6,7 @@ urlpatterns = [
     path('rm-user/', views.rm_user),
     # QUICK REMOVE DATA FROM DATABASE | END
     path('register/', views.register),
+    path(r'verify/<str:username>/<str:verify_code>/', views.verify),
     path('login/', views.login),
     path('', views.main),
 ]
