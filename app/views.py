@@ -25,26 +25,38 @@ def verify(request, username, verify_code):
         registeredUser = RegisteredUser(username=username,
                                         user_email=tempUser.get(id=tempUserID).user_email,
                                         user_password=tempUser.get(id=tempUserID).user_password)
+
+    def verify_credentials():
+        if verify_code == db_verify_code:
+            print('Entered verify code equals verify code from database...\n'
+                  'Moving TempUser to Registered User!')
+            try:
+                tempURL.get(id=tempURL_id).delete()
+                tempUser.get(id=tempUser_id).delete()
+                print(f'tempURL and tempUser (tempUser_id: {tempUser_id} / tempURL_id: {tempURL_id}) deleted!')
+            except Exception as exp:
+                print(f'Could not delete tempURL and tempUser - {exp}')
+
+        else:
+            print('Entered verify code does not equal verify')
+
+        print(db_verify_code)
+
     context = {
         'username': username,
         'verify_code': verify_code
     }
 
-    tempUser = TempUser.objects.all()
-    tempUserID = tempUser.get(username=username).id
     tempURL = TempURL.objects.all()
+    tempUser = TempUser.objects.all()
 
-    user_verify_code = tempURL.get(id=tempUserID).verification_code
-
-    if verify_code == user_verify_code:
-        print("Valid verify code - Moving User Data to Database...")
-
-    else:
-        print("Invalid verify code - User Data can not be registered!")
     try:
-        tempUser.get(id=tempUserID).delete()
-    except Exception as err:
-        print(err)
+        tempURL_id = tempURL.get(username=username).id()
+        tempUser_id = tempUser.get(username=username).id()
+        db_verify_code = tempURL.get(id=tempURL_id).verification_code()
+        verify_credentials()
+    except:
+        return HttpResponse('Already verified credentials or invalid verification code!')
     return render(request, 'templates/verify.html', context=context)
 
 
