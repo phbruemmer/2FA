@@ -113,19 +113,21 @@ def register(request):
 
         user = TempUser.objects.all()
         existing_users = RegisteredUser.objects.all()
-        existing_objs_username = user.filter(username=username).first()
-        existing_objs_email = user.filter(user_email=user_email).first()
+        existing_objs_username = existing_users.filter(username=username).first()
+        existing_objs_email = existing_users.filter(user_email=user_email).first()
         user_objs_username = user.filter(username=username).first()
         user_objs_email = user.filter(user_email=user_email).first()
 
         if user_objs_email is None and user_objs_username is None:
             print('No temporary / unverified users found')
-            if existing_objs_email is None and existing_objs_email is None:
+            if existing_objs_email is None and existing_objs_username is None:
                 print('verifying user credentials...')
                 print("Creating new User...")
                 register_user_in_database()
+            else:
+                print("User already registered!")
         else:
-            print("E-Mail or Username already registered.")
+            print("E-Mail or Username not verified.")
 
 
     """
@@ -146,13 +148,16 @@ def register(request):
 
 def login(request):
     def check_database():
-        user = TempUser.objects.all()
+        user = RegisteredUser.objects.all()
         db_username_lookup = user.filter(username=username).first()
         if db_username_lookup is not None:
             user_id = db_username_lookup.id
             db_password_lookup = user.get(id=user_id).user_password
-            print(db_password_lookup)
-        print(db_username_lookup)
+            if user_password == db_password_lookup:
+                print('WE ARE IN!!!')
+                """
+                Send verify link 
+                """
     context = {
         'type': 'login',
         'href': '/register',
@@ -163,7 +168,4 @@ def login(request):
         username = request.POST.get('username')
         user_password = request.POST.get('password')
         check_database()
-
-        print(username)
-        print(user_password)
     return render(request, 'templates/login.html', context)
