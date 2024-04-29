@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from .libraries import register_user_verification
+from .libraries import register_user_verification, send_email
 from .models import *
 
 
@@ -97,6 +97,7 @@ def register(request):
         verificationURL, verificationCode = register_user_verification.create_custom_url(username)
         tempURL = TempURL(verification_code=verificationCode, username=username)
         tempURL.save()
+        send_email.send_verification(username, verificationCode)
         print(verificationURL)
         # Send verificationURL to User
 
