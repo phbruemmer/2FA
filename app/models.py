@@ -31,5 +31,9 @@ class TempURL(models.Model):
     username = models.CharField(max_length=20)
 
 
-
+class TempVerifyCode(models.Model):
+    login_code = models.CharField(max_length=6,
+                                  help_text='Login verification Code')
+    username = models.CharField(max_length=20)
+    user_try_count = models.IntegerField(default=0)
 
