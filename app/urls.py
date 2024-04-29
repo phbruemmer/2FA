@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -8,5 +8,6 @@ urlpatterns = [
     path('register/', views.register),
     path(r'verify/<str:username>/<str:verify_code>/', views.verify),
     path('login/', views.login),
-    path('', views.main),
+    path(r'login/verify_code/<str:username>/', views.handle_login_code, name='handle_login_code'),
+    path('', views.main, name='main'),
 ]

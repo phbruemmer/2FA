@@ -1,6 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
 from .libraries import register_user_verification, send_email
 from .models import *
 
@@ -8,16 +7,16 @@ from .models import *
 def main(request):
     return HttpResponse('<center><h1>404</h1><br><h2>Page found but there is no content :P</h2></center>')
 
-
 def rm_user(request):
     try:
         TempURL.objects.all().delete()
         TempUser.objects.all().delete()
         RegisteredUser.objects.all().delete()
+        TempVerifyCode.objects.all().delete()
         ret = 'user objects deleted!'
+        print(ret)
     except Exception as ret:
-        pass
-    print(ret)
+        print(ret)
     return HttpResponse(ret)
 
 
@@ -148,6 +147,20 @@ def register(request):
 
 
 def login(request):
+    def handle_verify_code():
+        login_code = register_user_verification.create_code()
+        try:
+            tempObjects = TempVerifyCode.objects.all()
+            tempObjId = tempObjects.get(username=username).id
+            TempVerifyCode.objects.get(id=tempObjId).delete()
+        except Exception as exp:
+            print(f'No older codes found - {exp}')
+        tempVerifyCode = TempVerifyCode(login_code=login_code, username=username)
+        tempVerifyCode.save()
+        print(login_code)
+        # send_email.send_2FA_code(login_code)
+        return redirect(handle_login_code, username=username)
+
     def check_database():
         user = RegisteredUser.objects.all()
         db_username_lookup = user.filter(username=username).first()
@@ -156,9 +169,7 @@ def login(request):
             db_password_lookup = user.get(id=user_id).user_password
             if user_password == db_password_lookup:
                 print('WE ARE IN!!!')
-                """
-                Send verify link 
-                """
+                return True
     context = {
         'type': 'login',
         'href': '/register',
@@ -168,5 +179,39 @@ def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         user_password = request.POST.get('password')
-        check_database()
+        if check_database():
+            return handle_verify_code()
     return render(request, 'templates/login.html', context)
+
+
+def handle_login_code(request, username):
+    def check_database():
+        verifyCodeObj = TempVerifyCode.objects.all()
+        tempVerifyCodeId = verifyCodeObj.get(username=username).id
+        tempVerifyCode = verifyCodeObj.get(id=tempVerifyCodeId).login_code
+        if tempVerifyCode == verify_code:
+            verifyCodeObj.get(id=tempVerifyCodeId).delete()
+            return True
+        else:
+            print('Verify codes doesn\'t match!')
+            tries = verifyCodeObj.get(id=tempVerifyCodeId).user_try_count
+            """ INCREMENT TRIES AFTER EVERY FAILED TRY """
+            print(tries)
+
+            if tries == 3:
+                verifyCodeObj.get(id=tempVerifyCodeId).delete()
+                print('max tries reached - verify code not valid anymore!')
+            return False
+    context = {
+        'type': 'verify login',
+        'href': '/login',
+        'linkText': 'Back to login'
+    }
+
+    if request.method == 'POST':
+        verify_code = request.POST.get('login_code')
+        print(verify_code)
+        if check_database():
+            return redirect(main)
+
+    return render(request, 'templates/login_verify.html', context=context)
