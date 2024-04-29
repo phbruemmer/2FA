@@ -13,6 +13,7 @@ def rm_user(request):
     try:
         TempURL.objects.all().delete()
         TempUser.objects.all().delete()
+        RegisteredUser.objects.all().delete()
         ret = 'user objects deleted!'
     except Exception as ret:
         pass
@@ -21,10 +22,28 @@ def rm_user(request):
 
 
 def verify(request, username, verify_code):
+    def check():
+        user_check = RegisteredUser.objects.all()
+        user_check_id = user_check.filter(username=username).id
+        user = user_check.get(id=user_check_id)
+        if user.username == username and user.user_email == tempUser.get(
+                id=tempUser_id).user_email and user.user_password == tempUser.get(id=tempUser_id).user_password:
+            print('- - - Credentials verified - - -')
+        else:
+            print('Credential verification error - could not move data!')
+            user.delete()
+
     def move_data():
         registeredUser = RegisteredUser(username=username,
-                                        user_email=tempUser.get(id=tempUserID).user_email,
-                                        user_password=tempUser.get(id=tempUserID).user_password)
+                                        user_email=tempUser.get(id=tempUser_id).user_email,
+                                        user_password=tempUser.get(id=tempUser_id).user_password)
+        registeredUser.save()
+        print('checking data...')
+        try:
+            check()
+        except Exception as exp:
+            print(f'checking went wrong - {exp}')
+        tempUser.get(id=tempUser_id).delete()
 
     def verify_credentials():
         if verify_code == db_verify_code:
@@ -32,10 +51,10 @@ def verify(request, username, verify_code):
                   'Moving TempUser to Registered User!')
             try:
                 tempURL.get(id=tempURL_id).delete()
-                tempUser.get(id=tempUser_id).delete()
-                print(f'tempURL and tempUser (tempUser_id: {tempUser_id} / tempURL_id: {tempURL_id}) deleted!')
+                print(f'tempURL (tempURL_id: {tempURL_id}) deleted!')
+                move_data()
             except Exception as exp:
-                print(f'Could not delete tempURL and tempUser - {exp}')
+                print(f'Could not delete tempURL and / or can not move data - {exp}')
 
         else:
             print('Entered verify code does not equal verify')
@@ -51,12 +70,12 @@ def verify(request, username, verify_code):
     tempUser = TempUser.objects.all()
 
     try:
-        tempURL_id = tempURL.get(username=username).id()
-        tempUser_id = tempUser.get(username=username).id()
-        db_verify_code = tempURL.get(id=tempURL_id).verification_code()
+        tempURL_id = tempURL.get(username=username).id
+        tempUser_id = tempUser.get(username=username).id
+        db_verify_code = tempURL.get(id=tempURL_id).verification_code
         verify_credentials()
-    except:
-        return HttpResponse('Already verified credentials or invalid verification code!')
+    except Exception as exp:
+        return HttpResponse(f'Already verified credentials or invalid verification code!\n{exp}')
     return render(request, 'templates/verify.html', context=context)
 
 
@@ -93,13 +112,18 @@ def register(request):
         user_password = request.POST.get('password')
 
         user = TempUser.objects.all()
+        existing_users = RegisteredUser.objects.all()
+        existing_objs_username = user.filter(username=username).first()
+        existing_objs_email = user.filter(user_email=user_email).first()
         user_objs_username = user.filter(username=username).first()
         user_objs_email = user.filter(user_email=user_email).first()
 
         if user_objs_email is None and user_objs_username is None:
-            print('verifying user credentials...')
-            print("Creating new User...")
-            register_user_in_database()
+            print('No temporary / unverified users found')
+            if existing_objs_email is None and existing_objs_email is None:
+                print('verifying user credentials...')
+                print("Creating new User...")
+                register_user_in_database()
         else:
             print("E-Mail or Username already registered.")
 
