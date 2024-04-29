@@ -42,3 +42,10 @@ def create_custom_url(username):
     - In case of no received message (resend email on btn-click)
         - delete custom link from db and create new one
 """
+
+
+def create_code():
+    code = ''
+    for i in range(0, 6):
+        code += string.digits[random.randint(0, 9)]
+    return code
