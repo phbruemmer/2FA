@@ -185,37 +185,53 @@ def login(request):
 
 
 def handle_login_code(request, username):
-    def check_database():
+    try:
         verifyCodeObj = TempVerifyCode.objects.all()
         tempVerifyCodeId = verifyCodeObj.get(username=username).id
+    except:
+        pass
+
+    def display_tries():
+        tries = verifyCodeObj.get(id=tempVerifyCodeId).user_try_count
+        print(tries)
+        return tries
+
+    def check_database():
+        login_no_tries = [False, False]
         tempVerifyCode = verifyCodeObj.get(id=tempVerifyCodeId).login_code
         if tempVerifyCode == verify_code:
             verifyCodeObj.get(id=tempVerifyCodeId).delete()
-            return True
+            login_no_tries[0] = True
         else:
             print('Verify codes doesn\'t match!')
             tries = verifyCodeObj.get(id=tempVerifyCodeId)
             tries.user_try_count -= 1
             tries.save()
-            print(tries.user_try_count)
             tryInt = tries.user_try_count
+            print(tryInt)
 
             """ DECREMENT TRIES AFTER EVERY FAILED TRY """
 
             if tryInt <= 0:
                 verifyCodeObj.get(id=tempVerifyCodeId).delete()
                 print('max tries reached - verify code not valid anymore!')
-            return False
-    context = {
-        'type': 'verify login',
-        'href': '/login',
-        'linkText': 'Back to login',
-    }
+                login_no_tries[1] = True
+        return login_no_tries
 
     if request.method == 'POST':
         verify_code = request.POST.get('login_code')
         print(verify_code)
-        if check_database():
+        redirect_to_page = check_database()
+        if redirect_to_page[0]:
             return redirect(main)
+        elif redirect_to_page[1]:
+            return redirect(login)
+
+    context = {
+        'type': 'verify login',
+        'href': '/login',
+        'linkText': 'Back to login',
+        'tries': display_tries()
+    }
 
     return render(request, 'templates/login_verify.html', context=context)
