@@ -194,18 +194,22 @@ def handle_login_code(request, username):
             return True
         else:
             print('Verify codes doesn\'t match!')
-            tries = verifyCodeObj.get(id=tempVerifyCodeId).user_try_count
-            """ INCREMENT TRIES AFTER EVERY FAILED TRY """
-            print(tries)
+            tries = verifyCodeObj.get(id=tempVerifyCodeId)
+            tries.user_try_count -= 1
+            tries.save()
+            print(tries.user_try_count)
+            tryInt = tries.user_try_count
 
-            if tries == 3:
+            """ DECREMENT TRIES AFTER EVERY FAILED TRY """
+
+            if tryInt <= 0:
                 verifyCodeObj.get(id=tempVerifyCodeId).delete()
                 print('max tries reached - verify code not valid anymore!')
             return False
     context = {
         'type': 'verify login',
         'href': '/login',
-        'linkText': 'Back to login'
+        'linkText': 'Back to login',
     }
 
     if request.method == 'POST':
