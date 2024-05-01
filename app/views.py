@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
-from .libraries import register_user_verification, send_email
+from .libraries import register_user_verification, send_email, check
 from .models import *
 
 
@@ -99,36 +99,40 @@ def register(request):
         send_email.send_verification(username, verificationCode)
         print(verificationURL)
         # Send verificationURL to User
-
-    context = {
-        'type': 'register',
-        'href': '/login',
-        'linkText': 'Already have an Account?'
-    }
+    error_msg = "Password must be at least 5 characters long"
 
     if request.method == 'POST':
         username = request.POST.get('username')
         user_email = request.POST.get('email')
         user_password = request.POST.get('password')
 
-        user = TempUser.objects.all()
-        existing_users = RegisteredUser.objects.all()
-        existing_objs_username = existing_users.filter(username=username).first()
-        existing_objs_email = existing_users.filter(user_email=user_email).first()
-        user_objs_username = user.filter(username=username).first()
-        user_objs_email = user.filter(user_email=user_email).first()
+        if check.check_password(user_password):
+            user = TempUser.objects.all()
+            existing_users = RegisteredUser.objects.all()
+            existing_objs_username = existing_users.filter(username=username).first()
+            existing_objs_email = existing_users.filter(user_email=user_email).first()
+            user_objs_username = user.filter(username=username).first()
+            user_objs_email = user.filter(user_email=user_email).first()
 
-        if user_objs_email is None and user_objs_username is None:
-            print('No temporary / unverified users found')
-            if existing_objs_email is None and existing_objs_username is None:
-                print('verifying user credentials...')
-                print("Creating new User...")
-                register_user_in_database()
+            if user_objs_email is None and user_objs_username is None:
+                print('No temporary / unverified users found')
+                if existing_objs_email is None and existing_objs_username is None:
+                    print('verifying user credentials...')
+                    print("Creating new User...")
+                    register_user_in_database()
+                else:
+                    error_msg = "User already registered!"
             else:
-                print("User already registered!")
+                error_msg = "E-Mail or Username not verified."
         else:
-            print("E-Mail or Username not verified.")
-
+            error_msg = ("Invalid password - password must be at least 5 characters, contain digits, punctuation, "
+                         "lowercase- and uppercase letters!")
+    context = {
+        'type': 'register',
+        'href': '/login',
+        'linkText': 'Already have an Account?',
+        'help_text': error_msg
+    }
 
     """
     - - - - - - - - -
@@ -158,7 +162,7 @@ def login(request):
         tempVerifyCode = TempVerifyCode(login_code=login_code, username=username)
         tempVerifyCode.save()
         print(login_code)
-        # send_email.send_2FA_code(login_code)
+        send_email.send_2FA_code(login_code)
         return redirect(handle_login_code, username=username)
 
     def check_database():
