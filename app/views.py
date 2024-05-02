@@ -129,7 +129,7 @@ def register(request):
                          "lowercase- and uppercase letters!")
     context = {
         'type': 'register',
-        'href': '/login',
+        'href': '/accounts/login',
         'linkText': 'Already have an Account?',
         'help_text': error_msg
     }
@@ -176,7 +176,7 @@ def login(request):
                 return True
     context = {
         'type': 'login',
-        'href': '/register',
+        'href': '/accounts/register',
         'linkText': 'Don\'t have an Account?'
     }
 
