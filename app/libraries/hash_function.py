@@ -10,18 +10,19 @@ The Code is always the same for the same text but will change if you change some
 """
 
 
-def encrypt_data(data):
-    data_ascii_list = []
-    data_binary_list = []
+def sha256(data):
     print(data)
+    binary_list = []
+    # Convert Data to Binary using ASCII
     for i in data:
-        i = ord(i)
-        data_ascii_list.append(i)
-        data_binary_list.append(bin(i))
-        # print(i)
-        # print(bin(i))
-    print(data_binary_list)
+        binary_list.append(bin(ord(i)))
+    # Get bitwise length of data input
+    data_binary_len = len(binary_list) * 8
+    # calculate zeros to append
+    k = 896 - (data_binary_len + 1)
 
 
-encrypt_data('TestNachricht')
+    print(binary_list)
+
+sha256('TestNachricht')
 
