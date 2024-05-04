@@ -15,14 +15,25 @@ def sha256(data):
     binary_list = []
     # Convert Data to Binary using ASCII
     for i in data:
-        binary_list.append(bin(ord(i)))
+        binary_data = bin(ord(i))
+        binary_list.append(binary_data)
     # Get bitwise length of data input
     data_binary_len = len(binary_list) * 8
+
     # calculate zeros to append
-    k = 896 - (data_binary_len + 1)
+    k_bit_len = 896 - (data_binary_len + 1)
+
+    binary_zero_bits = 0b1
+
+    """
+    masked_number = binary_zero_bits & ((1 << k_bit_len) - 1)
+    padded_number = masked_number << (k_bit_len - binary_zero_bits.bit_length())
+    print(bin(padded_number))
+    """
 
 
-    print(binary_list)
+    print(binary_zero_bits)
 
-sha256('TestNachricht')
+
+sha256('abc')
 
