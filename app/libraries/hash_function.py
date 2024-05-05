@@ -172,14 +172,35 @@ def sha256(data):
     # ADD LENGTH AT THE END (64 BIT)  #
     # # # # # # # # # # # # # # # # # #
 
-    data_len = format(CONST_DATA_LEN, '08b')
-    data_len_bin = ''
-    temp_bin_list = []
+    data_len = format(CONST_DATA_LEN, '064b')
+    k_len_binary_length = len(data_len)
 
-    k_len_zeros = 64 - len(data_len)
+    for i in range(0, k_len_binary_length, 8):
+        binary_list.append(data_len[i:i + 8])
 
-    print(print(k_len_zeros))
+    print(binary_list)
+
+"""
+    while not (k_len_binary_length % 8) == 0:
+        k_len_binary_length += 1
+
+    k_zero_bytes = round((64 - k_len_binary_length) / 8)
+
+    for i in range(0, k_zero_bytes):
+        binary_list.append(format(0, '08b'))
+
+    chunks = []
+    print(data_len)
+    for i in range(len(data_len), 0, -8):
+        chunk = data_len[i:i + 8]
+        chunks.append(chunk)
+    print(chunks)
+"""
+
+
 
 
 sha256('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+
+
 
