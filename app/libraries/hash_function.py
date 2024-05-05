@@ -131,6 +131,8 @@ def sha256(data):
         if DEBUG:
             print(binary_data)
 
+    CONST_DATA_LEN = len(binary_list) * 8
+
     # Convert Data to Binary using ASCII
     # Get bitwise length of data input
     # Append single one at the end
@@ -161,10 +163,23 @@ def sha256(data):
     print(f'DEBUG - binary_list -> {binary_list}')
     print(f'DEBUG - binary_list_len -> {len(binary_list) * 8}')
 
-    if compare(binary_list):
+    """if compare(binary_list):
         print('Nothing wrong here i guess')
     else:
-        print('Something is wrong here')
+        print('Something is wrong here')"""
+
+    # # # # # # # # # # # # # # # # # #
+    # ADD LENGTH AT THE END (64 BIT)  #
+    # # # # # # # # # # # # # # # # # #
+
+    data_len = format(CONST_DATA_LEN, '08b')
+    data_len_bin = ''
+    temp_bin_list = []
+
+    k_len_zeros = 64 - len(data_len)
+
+    print(print(k_len_zeros))
+
 
 sha256('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
 
