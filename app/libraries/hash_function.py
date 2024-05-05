@@ -9,44 +9,91 @@ The function creates a code (for example 256 Bits long) and encrypts the data wi
 The Code is always the same for the same text but will change if you change something.
 """
 
+
+DEBUG = True
+
+
 def get_bin(binary_data):
     binary_data = binary_data.replace(' ', '')
+    binary_data = binary_data.replace('\n', '')
+    print(f'DEBUG - get_bin() -> {binary_data}')
     i = 0
     data_str = ''
     data_list = []
     for data in binary_data:
-        print(data)
         data_str += data
+        i += 1
         if (i % 8) == 0:
             data_list.append(data_str)
             data_str = ''
+
+    print(f'DEBUG - get_bin() -> {len(data_list)}')
+    print(f'DEBUG - get_bin() -> {len(data_list) * 8}')
     return data_list
 
 
 def compare(data):
     result = True
     bin_to_compare = get_bin("""
-    01100110 01100100 01110011 01101010
-    01101011 01100001 01100110 01101010
-    01101011 01101100 01100001 01110011
-    01100100 01101010 01101011 01101100
-    01100001 01101010 01110011 01101011
-    01101100 11000011 10110110 01100110
-    01101010 01101011 01101100 01100100
-    01100001 01110011 01101010 01101011
-    01101100 01100110 01101010 01100001
-    01100100 01101011 01110011 11000011
-    10110110 01100110 01101010 01101100
-    01101011 01100001 01101010 01101010
-    01101010 01101010 01101010 01101010
-    01101010 01101010 00110100 00110100
-    """)
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+01000001 01000001 01000001 01000001
+10000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000""")
+    print(f'DEBUG - compare() -> {bin_to_compare}')
+
+    failed_list = []
 
     for i in range(0, len(data)):
-        if not bin_to_compare[i] == data[i]:
+        if DEBUG:
             print(data[i])
-            print(bin_to_compare[i])
-            result = False
+            # print(bin_to_compare[i])
+            print(i)
+        """if not bin_to_compare[i] == data[i]:
+            failed_list.append([bin_to_compare[i], data[i], i])
+            result = False"""
+    print(failed_list)
 
     return result
 
@@ -77,28 +124,47 @@ def sha256(data):
     print(data)
 
     binary_list = []
+
     for i in data:
-        binary_data = bin(ord(i))
+        binary_data = format(ord(i), '08b')
         binary_list.append(binary_data)
+        if DEBUG:
+            print(binary_data)
 
     # Convert Data to Binary using ASCII
     # Get bitwise length of data input
     # Append single one at the end
-    binary_list.append(0b10000000)
+    binary_list.append(format(128, '08b'))
     data_binary_len = len(binary_list)
-    i = 0
 
-    # print(len(binary_list))
+    print(binary_list)
+
+    print(f'DEBUG - data_binary_len -> {data_binary_len}')
+    data_bit_len = data_binary_len * 8
+    print(f'DEBUG - data_bit_len -> {data_bit_len}')
 
     i = 512
-    while data_binary_len + 64 > i:
-        i = i * 2
+    CONST_I = 512
+
+    while data_bit_len + 64 >= i:
+        i += CONST_I
     print(i)
+
+    count = (i - 64) - data_bit_len
+    print(f'DEBUG - count -> {count}')
+
+    while (count % 8) == 0 and not count == 0:
+        count -= 8
+        #print(count)
+        binary_list.append(format(0, '08b'))
+
+    print(f'DEBUG - binary_list -> {binary_list}')
+    print(f'DEBUG - binary_list_len -> {len(binary_list) * 8}')
+
     if compare(binary_list):
         print('Nothing wrong here i guess')
     else:
         print('Something is wrong here')
 
-
-sha256('fdsjkafjklasdjklajsklöfjkldasjklfjadksöfjlkajjjjjjjj44')
+sha256('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
 
