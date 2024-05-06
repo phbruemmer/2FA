@@ -124,9 +124,11 @@ def sha256(data):
         if DEBUG:
             print(f'DEBUG - data_bit_len -> {data_bit_len}')
 
-        # i equals the size of the
+        # i equal the size of the current list in bits
         i = 512
         CONST_I = 512
+
+        # While the data_bit_len is smaller than i, add more bits to i
 
         while data_bit_len + 64 >= i:
             i += CONST_I
