@@ -10,7 +10,7 @@ The Code is always the same for the same text but will change if you change some
 """
 
 
-DEBUG = False
+DEBUG = True
 
 
 def get_bin(binary_data):
@@ -109,16 +109,26 @@ def sha256(data):
 
         for i in range(0, k_len_binary_length, 8):
             binary_list.append(data_len[i:i + 8])
+        print(binary_list)
         return binary_list
 
     def message_schedule(msg_data_block):
-        block512 = []
-        temp_block = []
-        i = 0
-        while (len(msg_data_block) % 64) == 0 and not len(msg_data_block) == 0:
-            temp_block.append(msg_data_block[i])
-            i += 1
-            block512.append(temp_block)
+        def block512():
+            print(len(msg_data_block))
+            final_block = []
+
+            for y in range(0, len(msg_data_block), 64):
+                final_block.append(msg_data_block[y:y + 63])
+            return final_block
+
+        def block32(block512_data):
+            print(block512_data)
+            final_block = []
+
+            for y in range(0, len(block512_data), 4):
+                final_block.append(block512_data[y:y + 4])
+            return final_block
+
         w = []  # Array w[0..63] of 32-bit words
         temp_binary_str = ''
 
@@ -129,10 +139,13 @@ def sha256(data):
                 i = 0
                 w.append(temp_binary_str)
                 temp_binary_str = ''
-        print(w)
-        print(len(w))
+
+        block512_data = block512()
+        print(block512_data)
+        print(len(block512_data))
+        # print(block32(block512_data))
     binary_prep = sha_prep()
     message_schedule(binary_prep)
 
 
-sha256('abc')
+sha256('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
