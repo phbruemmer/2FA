@@ -109,14 +109,30 @@ def sha256(data):
 
         for i in range(0, k_len_binary_length, 8):
             binary_list.append(data_len[i:i + 8])
-        print(binary_list)
+        return binary_list
 
-    sha_prep()
+    def message_schedule(msg_data_block):
+        block512 = []
+        temp_block = []
+        i = 0
+        while (len(msg_data_block) % 64) == 0 and not len(msg_data_block) == 0:
+            temp_block.append(msg_data_block[i])
+            i += 1
+            block512.append(temp_block)
+        w = []  # Array w[0..63] of 32-bit words
+        temp_binary_str = ''
 
-
+        for i in range(0, len(msg_data_block) - 1):
+            i += 1
+            temp_binary_str += msg_data_block[i]
+            if (i % 4) == 0:
+                i = 0
+                w.append(temp_binary_str)
+                temp_binary_str = ''
+        print(w)
+        print(len(w))
+    binary_prep = sha_prep()
+    message_schedule(binary_prep)
 
 
 sha256('abc')
-
-
-
