@@ -84,7 +84,7 @@ def sha256(data):
 
         # While the data_bit_len is smaller than i, add more bits to i
 
-        while data_bit_len + 64 >= i:
+        while data_bit_len + 64 > i:
             i += CONST_I
 
         count = (i - 64) - data_bit_len
