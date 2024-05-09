@@ -132,6 +132,12 @@ def sha256(data):
             shifted_bits = zeros + rem_bits
             return shifted_bits
 
+        def remove_single_bits(value, length):
+            if len(value) > length:
+                removable_bit_amount = len(value) - length
+                value = value[removable_bit_amount:]
+            return value
+
         def block512():
             """
             This function separates the prepared binary list in single 512 Bit blocks.
@@ -174,6 +180,7 @@ def sha256(data):
                 rr7 = int(rotate_right(w_value, 7).zfill(32), 2)
                 rr18 = int(rotate_right(w_value, 18).zfill(32), 2)
                 rs3 = int(shift_right(w_value, 3).zfill(32), 2)
+
                 return format((rr7 ^ rr18 ^ rs3), '032b')
 
             def sigma_one(w_value):
@@ -187,6 +194,7 @@ def sha256(data):
                 rr17 = int(rotate_right(w_value, 17).zfill(32), 2)
                 rr19 = int(rotate_right(w_value, 19).zfill(32), 2)
                 rs10 = int(shift_right(w_value, 10).zfill(32), 2)
+
                 return format((rr17 ^ rr19 ^ rs10), '032b')
 
             for i in range(16, 64):
@@ -198,19 +206,20 @@ def sha256(data):
                 sig_zero = sigma_zero(bin_w1)
                 sig_one = sigma_one(bin_w14)
 
-                print(f'sig-zero: {sig_zero} - {len(sig_zero)}')
-                print(f'sig-one: {sig_one} - {len(sig_one)}')
+                """print(f'sig-zero: {sig_zero} - {len(sig_zero)} - {i}')
+                print(f'sig-one: {sig_one} - {len(sig_one)} - {i}')"""
 
                 next_bin = int(bin_w0, 2) + int(sig_zero, 2) + int(bin_w9, 2) + int(sig_one, 2)
-                next_bin = format(next_bin, '032b').zfill(32)
-                w.append(next_bin)
+                next_bin = format(next_bin, '032b')
+                binary = remove_single_bits(next_bin, 32)
+                w.append(binary)
 
                 INCREMENTAL_W0 += 1
                 INCREMENTAL_W1 += 1
                 INCREMENTAL_W9 += 1
                 INCREMENTAL_W14 += 1
-            print(w[16])
-            print(len(w[16]))
+            print(w[-1])
+            print(len(w))
         block512_data = block512()
         prep_w(block512_data[0])
         calculate_w_values()
