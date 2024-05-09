@@ -116,11 +116,21 @@ def sha256(data):
     def message_schedule(msg_data_block):
         w = []  # Array w[0..63] of 32-bit words
 
-        def rotate_right(rotations):
-            pass
+        def rotate_right(value, rotations):
+            rotations = rotations % len(value)
+            rot_bits = value[-rotations:]
+            remaining_bits = value[:-rotations]
+            rotated_bits = rot_bits + remaining_bits
+            return rotated_bits
 
-        def shift_right(shifts):
-            pass
+        def shift_right(value, shifts):
+            shifts = shifts % len(value)
+            rem_bits = value[:-shifts]
+            zeros = ''
+            for shift in range(0, shifts):
+                zeros += '0'
+            shifted_bits = zeros + rem_bits
+            return shifted_bits
 
         def block512():
             """
@@ -148,18 +158,57 @@ def sha256(data):
                     temp_binary_str = ''
 
         def calculate_w_values():
-            ITERATABLE_W0 = 0
-            ITERATABLE_W1 = 1
-            ITERATABLE_W9 = 9
-            ITERATABLE_W14 = 14
+            INCREMENTAL_W0 = 0
+            INCREMENTAL_W1 = 1
+            INCREMENTAL_W9 = 9
+            INCREMENTAL_W14 = 14
 
-            def sigma_zero():
-                pass
+            def sigma_zero(w_value):
+                """
+                This function creates the correct sigma zero binary representation.
+                binary:
+                    - right rotate 7
+                    - right rotate 18
+                    - right shift 3
+                """
+                rr7 = int(rotate_right(w_value, 7).zfill(32), 2)
+                rr18 = int(rotate_right(w_value, 18).zfill(32), 2)
+                rs3 = int(shift_right(w_value, 3).zfill(32), 2)
+                return format((rr7 ^ rr18 ^ rs3), '032b')
 
-            def sigma_one():
-                pass
-            print(w)
+            def sigma_one(w_value):
+                """
+                This function creates the correct sigma one binary representation.
+                binary:
+                    - right rotate 17
+                    - right rotate 19
+                    - right shift 10
+                """
+                rr17 = int(rotate_right(w_value, 17).zfill(32), 2)
+                rr19 = int(rotate_right(w_value, 19).zfill(32), 2)
+                rs10 = int(shift_right(w_value, 10).zfill(32), 2)
+                return format((rr17 ^ rr19 ^ rs10), '032b')
 
+            for i in range(16, 64):
+                bin_w0 = w[INCREMENTAL_W0].zfill(32)
+                bin_w1 = w[INCREMENTAL_W1].zfill(32)
+                bin_w9 = w[INCREMENTAL_W9].zfill(32)
+                bin_w14 = w[INCREMENTAL_W14].zfill(32)
+
+                sig_zero = sigma_zero(bin_w1)
+                sig_one = sigma_one(bin_w14)
+
+                print(f'sig-zero: {sig_zero}')
+                print(f'sig-one: {sig_one}')
+
+                next_bin = format(int(bin_w0, 2) + int(sig_zero, 2) + int(bin_w9, 2) + int(sig_one, 2), '032b')
+                w.append(next_bin)
+
+                INCREMENTAL_W0 += 1
+                INCREMENTAL_W1 += 1
+                INCREMENTAL_W9 += 1
+                INCREMENTAL_W14 += 1
+            print(w[16])
         block512_data = block512()
         prep_w(block512_data[0])
         calculate_w_values()
