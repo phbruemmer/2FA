@@ -10,7 +10,8 @@ The Code is always the same for the same text but will change if you change some
 """
 
 
-DEBUG = True
+DEBUG = False
+
 
 
 def get_bin(binary_data):
@@ -118,15 +119,15 @@ def sha256(data):
             final_block = []
 
             for y in range(0, len(msg_data_block), 64):
-                final_block.append(msg_data_block[y:y + 63])
+                final_block.append(msg_data_block[y:y + 64])
             return final_block
 
-        def block32(block512_data):
-            print(block512_data)
+        def block32(_block512_data):
+            print(_block512_data)
             final_block = []
 
-            for y in range(0, len(block512_data), 4):
-                final_block.append(block512_data[y:y + 4])
+            for y in range(0, len(_block512_data), 4):
+                final_block.append(_block512_data[y:y + 4])
             return final_block
 
         w = []  # Array w[0..63] of 32-bit words
@@ -143,9 +144,9 @@ def sha256(data):
         block512_data = block512()
         print(block512_data)
         print(len(block512_data))
-        # print(block32(block512_data))
+        print(block32(block512_data[0]))
     binary_prep = sha_prep()
     message_schedule(binary_prep)
 
 
-sha256('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+sha256('abc')
