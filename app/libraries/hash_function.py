@@ -114,7 +114,18 @@ def sha256(data):
         return binary_list
 
     def message_schedule(msg_data_block):
+        w = []  # Array w[0..63] of 32-bit words
+
+        def rotate_right(rotations):
+            pass
+
+        def shift_right(shifts):
+            pass
+
         def block512():
+            """
+            This function separates the prepared binary list in single 512 Bit blocks.
+            """
             print(len(msg_data_block))
             final_block = []
 
@@ -122,31 +133,39 @@ def sha256(data):
                 final_block.append(msg_data_block[y:y + 64])
             return final_block
 
-        def block32(_block512_data):
-            print(_block512_data)
-            final_block = []
+        def prep_w(_512bit_chunk):
+            """
+            This function inserts the first 512 bits into the w0..63 Message Schedule list.
+            """
+            temp_binary_str = ''
+            k = 0
+            for i in range(0, len(_512bit_chunk)):
+                temp_binary_str += _512bit_chunk[i]
+                k += 1
+                if (k % 4) == 0 and not k == 0:
+                    k = 0
+                    w.append(temp_binary_str)
+                    temp_binary_str = ''
 
-            for y in range(0, len(_block512_data), 4):
-                final_block.append(_block512_data[y:y + 4])
-            return final_block
+        def calculate_w_values():
+            ITERATABLE_W0 = 0
+            ITERATABLE_W1 = 1
+            ITERATABLE_W9 = 9
+            ITERATABLE_W14 = 14
 
-        w = []  # Array w[0..63] of 32-bit words
-        temp_binary_str = ''
+            def sigma_zero():
+                pass
 
-        for i in range(0, len(msg_data_block) - 1):
-            i += 1
-            temp_binary_str += msg_data_block[i]
-            if (i % 4) == 0:
-                i = 0
-                w.append(temp_binary_str)
-                temp_binary_str = ''
+            def sigma_one():
+                pass
+            print(w)
 
         block512_data = block512()
-        print(block512_data)
-        print(len(block512_data))
-        print(block32(block512_data[0]))
+        prep_w(block512_data[0])
+        calculate_w_values()
+
     binary_prep = sha_prep()
     message_schedule(binary_prep)
 
 
-sha256('abc')
+sha256('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
