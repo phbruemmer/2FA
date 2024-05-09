@@ -117,13 +117,23 @@ def sha256(data):
         w = []  # Array w[0..63] of 32-bit words
 
         def rotate_right(value, rotations):
+            """
+            value : binary string
+            rotations : integer
+            This function will rotate the binary representation ({rotations} times) to the right.
+            """
             rotations = rotations % len(value)
-            rot_bits = value[-rotations:]
-            remaining_bits = value[:-rotations]
-            rotated_bits = rot_bits + remaining_bits
+            rot_bits = value[-rotations:]               # Gets the last (-rotation) Bits
+            remaining_bits = value[:-rotations]         # Gets the first (rotation) Bits
+            rotated_bits = rot_bits + remaining_bits    # Last Bits added in front of the first bits
             return rotated_bits
 
         def shift_right(value, shifts):
+            """
+            value : binary string
+            shifts : integer
+            This function will shift the binary representation ({shift} times) to the right.
+            """
             shifts = shifts % len(value)
             rem_bits = value[:-shifts]
             zeros = ''
@@ -133,6 +143,12 @@ def sha256(data):
             return shifted_bits
 
         def remove_single_bits(value, length):
+            """
+            value : binary string
+            length : needed length
+            This function will remove the first bits of every binary representation
+            if the length is smaller than the actual binary length.
+            """
             if len(value) > length:
                 removable_bit_amount = len(value) - length
                 value = value[removable_bit_amount:]
@@ -142,7 +158,6 @@ def sha256(data):
             """
             This function separates the prepared binary list in single 512 Bit blocks.
             """
-            print(len(msg_data_block))
             final_block = []
 
             for y in range(0, len(msg_data_block), 64):
@@ -198,6 +213,16 @@ def sha256(data):
                 return format((rr17 ^ rr19 ^ rs10), '032b')
 
             for i in range(16, 64):
+                """
+                Loops through w-list and calculates the following values of the list.
+                - Stores the current data in the bin_wX variables
+                - Calculates sigma_zero and sigma_one.
+                - Adds binary values from bin_w0, sigma_zero, bin_w9 and sigma_one
+                - Checks if the binary string is longer than 32 bit
+                    - if yes, the unnecessary first bits will be removed
+                - Appends binary representation on w-list
+                - Increments the bin_wX Variables
+                """
                 bin_w0 = w[INCREMENTAL_W0].zfill(32)
                 bin_w1 = w[INCREMENTAL_W1].zfill(32)
                 bin_w9 = w[INCREMENTAL_W9].zfill(32)
@@ -205,9 +230,6 @@ def sha256(data):
 
                 sig_zero = sigma_zero(bin_w1)
                 sig_one = sigma_one(bin_w14)
-
-                """print(f'sig-zero: {sig_zero} - {len(sig_zero)} - {i}')
-                print(f'sig-one: {sig_one} - {len(sig_one)} - {i}')"""
 
                 next_bin = int(bin_w0, 2) + int(sig_zero, 2) + int(bin_w9, 2) + int(sig_one, 2)
                 next_bin = format(next_bin, '032b')
@@ -218,14 +240,15 @@ def sha256(data):
                 INCREMENTAL_W1 += 1
                 INCREMENTAL_W9 += 1
                 INCREMENTAL_W14 += 1
-            print(w[-1])
-            print(len(w))
-        block512_data = block512()
-        prep_w(block512_data[0])
-        calculate_w_values()
+
+        # Function sequence
+        block512_data = block512()  # Separates the data into 512 bit chunks
+        prep_w(block512_data[0])    # Prepares the w-list -> adds (only) the first 512 bits
+        calculate_w_values()        # Calculates the following wX - Values (16..63)
+        return w
 
     binary_prep = sha_prep()
-    message_schedule(binary_prep)
+    message_schedule_list = message_schedule(binary_prep)
 
 
 sha256('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
