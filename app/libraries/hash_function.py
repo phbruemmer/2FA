@@ -198,10 +198,11 @@ def sha256(data):
                 sig_zero = sigma_zero(bin_w1)
                 sig_one = sigma_one(bin_w14)
 
-                print(f'sig-zero: {sig_zero}')
-                print(f'sig-one: {sig_one}')
+                print(f'sig-zero: {sig_zero} - {len(sig_zero)}')
+                print(f'sig-one: {sig_one} - {len(sig_one)}')
 
-                next_bin = format(int(bin_w0, 2) + int(sig_zero, 2) + int(bin_w9, 2) + int(sig_one, 2), '032b')
+                next_bin = int(bin_w0, 2) + int(sig_zero, 2) + int(bin_w9, 2) + int(sig_one, 2)
+                next_bin = format(next_bin, '032b').zfill(32)
                 w.append(next_bin)
 
                 INCREMENTAL_W0 += 1
@@ -209,6 +210,7 @@ def sha256(data):
                 INCREMENTAL_W9 += 1
                 INCREMENTAL_W14 += 1
             print(w[16])
+            print(len(w[16]))
         block512_data = block512()
         prep_w(block512_data[0])
         calculate_w_values()
