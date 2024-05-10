@@ -1,4 +1,3 @@
-
 """
 - - - - - - - - - - -
 Hashfunction - Encryption
@@ -9,9 +8,7 @@ The function creates a code (for example 256 Bits long) and encrypts the data wi
 The Code is always the same for the same text but will change if you change something.
 """
 
-
 DEBUG = False
-
 
 
 def get_bin(binary_data):
@@ -54,16 +51,25 @@ def compare(data):
 
 
 def sha256(data):
+    def rotate_right(value, rotations):
+        """
+        value : binary string
+        rotations : integer
+        This function will rotate the binary representation ({rotations} times) to the right.
+        """
+        rotations = rotations % len(value)
+        rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
+        remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
+        rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
+        return rotated_bits
+
     def sha_prep():
-        print(data)
         binary_list = []
 
         # Convert Data from ASCII to Binary in 8 Bit chunks
         for i in data:
             binary_data = format(ord(i), '08b')
             binary_list.append(binary_data)
-            if DEBUG:
-                print(binary_data)
 
         # Length of the raw data in binary (bitwise)
         CONST_DATA_LEN = len(binary_list) * 8
@@ -72,34 +78,23 @@ def sha256(data):
         binary_list.append(format(128, '08b'))
         data_binary_len = len(binary_list)
 
-        if DEBUG:
-            print(f'DEBUG - data_binary_len -> {data_binary_len}')
         # Get Data length in bits
         data_bit_len = data_binary_len * 8
-        if DEBUG:
-            print(f'DEBUG - data_bit_len -> {data_bit_len}')
 
         # i equal the size of the current list in bits
         i = 512
         CONST_I = 512
 
         # While the data_bit_len is smaller than i, add more bits to i
-
         while data_bit_len + 64 > i:
             i += CONST_I
 
         count = (i - 64) - data_bit_len
-        if DEBUG:
-            print(f'DEBUG - count -> {count}')
 
         while (count % 8) == 0 and not count == 0:
             count -= 8
             # print(count)
             binary_list.append(format(0, '08b'))
-
-        if DEBUG:
-            print(f'DEBUG - binary_list -> {binary_list}')
-            print(f'DEBUG - binary_list_len -> {len(binary_list) * 8}')
 
         # # # # # # # # # # # # # # # # # #
         # ADD LENGTH AT THE END (64 BIT)  #
@@ -115,18 +110,6 @@ def sha256(data):
 
     def message_schedule(msg_data_block):
         w = []  # Array w[0..63] of 32-bit words
-
-        def rotate_right(value, rotations):
-            """
-            value : binary string
-            rotations : integer
-            This function will rotate the binary representation ({rotations} times) to the right.
-            """
-            rotations = rotations % len(value)
-            rot_bits = value[-rotations:]               # Gets the last (-rotation) Bits
-            remaining_bits = value[:-rotations]         # Gets the first (rotation) Bits
-            rotated_bits = rot_bits + remaining_bits    # Last Bits added in front of the first bits
-            return rotated_bits
 
         def shift_right(value, shifts):
             """
@@ -243,12 +226,56 @@ def sha256(data):
 
         # Function sequence
         block512_data = block512()  # Separates the data into 512 bit chunks
-        prep_w(block512_data[0])    # Prepares the w-list -> adds (only) the first 512 bits
-        calculate_w_values()        # Calculates the following wX - Values (16..63)
+        prep_w(block512_data[0])  # Prepares the w-list -> adds (only) the first 512 bits
+        calculate_w_values()  # Calculates the following wX - Values (16..63)
         return w
 
-    binary_prep = sha_prep()
+    def start_hashing():
+        """
+        calculate final hash
+        """
+
+        def create_k_constants():
+            def look_up_primes(max_val):
+                """
+                max_val: integer
+                This function (as the name suggests) looks up prime numbers until {max_val} is reached.
+                It starts by looping through the numbers from 2 to {max_val} - Every loop starts another for loop that
+                loops through the numbers from 2 to the current number.
+                If the current number divided by the current number in the second loop has no leftovers, the current
+                number is not a prime number.
+                """
+
+                prime_list = []
+                for i in range(2, max_val):
+                    prime = True
+                    for y in range(2, i):
+                        if (i % y) == 0:
+                            prime = False
+                    if prime:
+                        prime_list.append(i)
+                return prime_list
+
+            k = []
+
+        # Initial hash value h0..h7
+        # First 32 Bits of the fractional parts of the square roots of the first 8 primes.
+        h0 = '01101010000010011110011001100111'
+        h1 = '10111011011001111010111010000101'
+        h2 = '00111100011011101111001101110010'
+        h3 = '10100101010011111111010100111010'
+        h4 = '01010001000011100101001001111111'
+        h5 = '10011011000001010110100010001100'
+        h6 = '00011111100000111101100110101011'
+        h7 = '01011011111000001100110100011001'
+
+        # Initialize array of constants
+
+        pass
+
+    """binary_prep = sha_prep()
     message_schedule_list = message_schedule(binary_prep)
+    print(message_schedule_list)"""
 
 
-sha256('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+sha256('abc')
