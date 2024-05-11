@@ -1,3 +1,4 @@
+from statics import static_hash_values
 """
 - - - - - - - - - - -
 Hashfunction - Encryption
@@ -234,29 +235,6 @@ def sha256(data):
         """
         calculate final hash
         """
-
-        def create_k_constants():
-            def look_up_primes(max_val):
-                """
-                max_val: integer
-                This function (as the name suggests) looks up prime numbers until {max_val} is reached.
-                It starts by looping through the numbers from 2 to {max_val} - Every loop starts another for loop that
-                loops through the numbers from 2 to the current number.
-                If the current number divided by the current number in the second loop has no leftovers, the current
-                number is not a prime number.
-                """
-
-                prime_list = []
-                for i in range(2, max_val):
-                    prime = True
-                    for y in range(2, i):
-                        if (i % y) == 0:
-                            prime = False
-                    if prime:
-                        prime_list.append(i)
-                return prime_list
-
-            k = []
 
         # Initial hash value h0..h7
         # First 32 Bits of the fractional parts of the square roots of the first 8 primes.
