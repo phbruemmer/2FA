@@ -58,6 +58,7 @@ def sha256(data):
         rotations : integer
         This function will rotate the binary representation ({rotations} times) to the right.
         """
+        value = str(value)
         rotations = rotations % len(value)
         rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
         remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
@@ -70,6 +71,7 @@ def sha256(data):
         Loops through {value} and swaps every 1 with a 0
         return: string
         """
+        value = str(value)
         inverse_str = ''
         for i in value:
             if i == '1':
@@ -245,54 +247,95 @@ def sha256(data):
         calculate_w_values()  # Calculates the following wX - Values (16..63)
         return w
 
-    def start_hashing():
+    def start_hashing(w):
         """
         calculate final hash
         """
 
         def sigma_one(e):
+            """
+            e: binary string
+            """
             e1 = int(right_rotate(e, 6))
             e2 = int(right_rotate(e, 11))
             e3 = int(right_rotate(e, 25))
-            return str(e1 ^ e2 ^ e3)
+            return int(e1 ^ e2 ^ e3)
 
         def sigma_zero(a):
+            """
+            a: binary string
+            """
             a1 = int(right_rotate(a, 2))
             a2 = int(right_rotate(a, 13))
             a3 = int(right_rotate(a, 22))
-            return str(a1 ^ a2 ^ a3)
+            return int(a1 ^ a2 ^ a3)
 
         def choice(e, f, g):
+            """
+            e, f, g: binary
+            """
             neg_e = binary_negation(e)
-            return str((int(e) & int(f)) ^ (int(neg_e) & int(g)))
+            return (e & f) ^ (int(neg_e) & g)
 
         def majority(a, b, c):
-            a = int(a)
-            b = int(b)
-            c = int(c)
-            return str((a & b) ^ (a & c) ^ (b & c))
+            """
+            a, b, c: binary
+            """
+            return (a & b) ^ (a & c) ^ (b & c)
 
         # Initial array of h-constants
         # First 32 Bits of the fractional parts of the square roots of the first 8 primes. (2..19)
         h = shv.create_h_constants()
 
         # Working Variables
-        a_ = h[0]
-        b_ = h[1]
-        c_ = h[2]
-        d_ = h[3]
-        e_ = h[4]
-        f_ = h[5]
-        g_ = h[6]
-        h_ = h[7]
+        a_ = int(h[0])
+        b_ = int(h[1])
+        c_ = int(h[2])
+        d_ = int(h[3])
+        e_ = int(h[4])
+        f_ = int(h[5])
+        g_ = int(h[6])
+        h_ = int(h[7])
 
         # Initial array of k-constants
         # First 32 Bits of the fractional parts of the cube roots of the first 64 primes. (2..311)
         k = shv.create_k_constants()
 
-    """binary_prep = sha_prep()
+        for i in range(0, len(k)):
+            print(i)
+            Temp1 = h_ + sigma_one(e_) + choice(e_, f_, g_) + int(k[i]) + int(w[i])
+            Temp2 = sigma_zero(a_) + majority(a_, b_, c_)
+            print(bin(Temp2))
+            h_ = g_
+            g_ = f_
+            f_ = e_
+            e_ = d_ + Temp1
+            d_ = c_
+            c_ = b_
+            b_ = a_
+            a_ = Temp1 + Temp2
+
+        h0 = a_ + int(h[0])
+        h1 = b_ + int(h[1])
+        h2 = c_ + int(h[2])
+        h3 = d_ + int(h[3])
+        h4 = e_ + int(h[4])
+        h5 = f_ + int(h[5])
+        h6 = g_ + int(h[6])
+        h7 = h_ + int(h[7])
+
+        print(bin(h0))
+        print(h1)
+        print(h2)
+        print(h3)
+        print(h4)
+        print(h5)
+        print(h6)
+        print(h7)
+
+    binary_prep = sha_prep()
     message_schedule_list = message_schedule(binary_prep)
-    print(message_schedule_list)"""
+    start_hashing(message_schedule_list)
 
 
 sha256('abc')
