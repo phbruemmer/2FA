@@ -1,4 +1,4 @@
-import static_value_calculations as svc
+from . import static_value_calculations as svc
 
 
 def create_k_constants():

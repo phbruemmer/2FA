@@ -1,4 +1,4 @@
-from statics import static_hash_values
+from statics import static_hash_values as shv
 """
 - - - - - - - - - - -
 Hashfunction - Encryption
@@ -52,7 +52,7 @@ def compare(data):
 
 
 def sha256(data):
-    def rotate_right(value, rotations):
+    def right_rotate(value, rotations):
         """
         value : binary string
         rotations : integer
@@ -63,6 +63,20 @@ def sha256(data):
         remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
         rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
         return rotated_bits
+
+    def binary_negation(value):
+        """
+        value: binary string
+        Loops through {value} and swaps every 1 with a 0
+        return: string
+        """
+        inverse_str = ''
+        for i in value:
+            if i == '1':
+                inverse_str += '0'
+            else:
+                inverse_str += '1'
+        return inverse_str
 
     def sha_prep():
         binary_list = []
@@ -176,8 +190,8 @@ def sha256(data):
                     - right rotate 18
                     - right shift 3
                 """
-                rr7 = int(rotate_right(w_value, 7).zfill(32), 2)
-                rr18 = int(rotate_right(w_value, 18).zfill(32), 2)
+                rr7 = int(right_rotate(w_value, 7).zfill(32), 2)
+                rr18 = int(right_rotate(w_value, 18).zfill(32), 2)
                 rs3 = int(shift_right(w_value, 3).zfill(32), 2)
 
                 return format((rr7 ^ rr18 ^ rs3), '032b')
@@ -190,8 +204,8 @@ def sha256(data):
                     - right rotate 19
                     - right shift 10
                 """
-                rr17 = int(rotate_right(w_value, 17).zfill(32), 2)
-                rr19 = int(rotate_right(w_value, 19).zfill(32), 2)
+                rr17 = int(right_rotate(w_value, 17).zfill(32), 2)
+                rr19 = int(right_rotate(w_value, 19).zfill(32), 2)
                 rs10 = int(shift_right(w_value, 10).zfill(32), 2)
 
                 return format((rr17 ^ rr19 ^ rs10), '032b')
@@ -236,20 +250,45 @@ def sha256(data):
         calculate final hash
         """
 
-        # Initial hash value h0..h7
-        # First 32 Bits of the fractional parts of the square roots of the first 8 primes.
-        h0 = '01101010000010011110011001100111'
-        h1 = '10111011011001111010111010000101'
-        h2 = '00111100011011101111001101110010'
-        h3 = '10100101010011111111010100111010'
-        h4 = '01010001000011100101001001111111'
-        h5 = '10011011000001010110100010001100'
-        h6 = '00011111100000111101100110101011'
-        h7 = '01011011111000001100110100011001'
+        def sigma_one(e):
+            e1 = int(right_rotate(e, 6))
+            e2 = int(right_rotate(e, 11))
+            e3 = int(right_rotate(e, 25))
+            return str(e1 ^ e2 ^ e3)
 
-        # Initialize array of constants
+        def sigma_zero(a):
+            a1 = int(right_rotate(a, 2))
+            a2 = int(right_rotate(a, 13))
+            a3 = int(right_rotate(a, 22))
+            return str(a1 ^ a2 ^ a3)
 
-        pass
+        def choice(e, f, g):
+            neg_e = binary_negation(e)
+            return str((int(e) & int(f)) ^ (int(neg_e) & int(g)))
+
+        def majority(a, b, c):
+            a = int(a)
+            b = int(b)
+            c = int(c)
+            return str((a & b) ^ (a & c) ^ (b & c))
+
+        # Initial array of h-constants
+        # First 32 Bits of the fractional parts of the square roots of the first 8 primes. (2..19)
+        h = shv.create_h_constants()
+
+        # Working Variables
+        a_ = h[0]
+        b_ = h[1]
+        c_ = h[2]
+        d_ = h[3]
+        e_ = h[4]
+        f_ = h[5]
+        g_ = h[6]
+        h_ = h[7]
+
+        # Initial array of k-constants
+        # First 32 Bits of the fractional parts of the cube roots of the first 64 primes. (2..311)
+        k = shv.create_k_constants()
 
     """binary_prep = sha_prep()
     message_schedule_list = message_schedule(binary_prep)
