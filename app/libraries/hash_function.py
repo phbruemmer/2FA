@@ -58,12 +58,14 @@ def sha256(data):
         rotations : integer
         This function will rotate the binary representation ({rotations} times) to the right.
         """
+        print(value)
         value = str(value)
         rotations = rotations % len(value)
         rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
         remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
         rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
-        return rotated_bits
+        print('fdksjkdewsajiaehriktjeksajtkiojsa: ' + str(int(rotated_bits)))
+        return str(int(rotated_bits))
 
     def binary_negation(value):
         """
@@ -242,9 +244,9 @@ def sha256(data):
                 INCREMENTAL_W14 += 1
 
         # Function sequence
-        block512_data = block512()  # Separates the data into 512 bit chunks
-        prep_w(block512_data[0])  # Prepares the w-list -> adds (only) the first 512 bits
-        calculate_w_values()  # Calculates the following wX - Values (16..63)
+        block512_data = block512()      # Separates the data into 512 bit chunks
+        prep_w(block512_data[0])        # Prepares the w-list -> adds (only) the first 512 bits
+        calculate_w_values()            # Calculates the following wX - Values (16..63)
         return w
 
     def start_hashing(w):
@@ -256,10 +258,11 @@ def sha256(data):
             """
             e: binary string
             """
-            e1 = int(right_rotate(e, 6))
-            e2 = int(right_rotate(e, 11))
-            e3 = int(right_rotate(e, 25))
-            return int(e1 ^ e2 ^ e3)
+            e1 = right_rotate(e, 6)
+            e2 = right_rotate(e, 11)
+            e3 = right_rotate(e, 25)
+            e4 = int(e1) ^ int(e2) ^ int(e3)
+            return bin(e4)[2:]
 
         def sigma_zero(a):
             """
@@ -268,20 +271,23 @@ def sha256(data):
             a1 = int(right_rotate(a, 2))
             a2 = int(right_rotate(a, 13))
             a3 = int(right_rotate(a, 22))
-            return int(a1 ^ a2 ^ a3)
+            a4 = bin(a1 ^ a2 ^ a3)[2:]
+            print('sigma zero: ' + bin(int(a1 ^ a2 ^ a3)))
+            return bin(a1 ^ a2 ^ a3)
 
         def choice(e, f, g):
             """
             e, f, g: binary
             """
             neg_e = binary_negation(e)
-            return (e & f) ^ (int(neg_e) & g)
+            choice_ = (e & f) ^ (int(neg_e, 2) & g)
+            return bin(choice_)[2:]
 
         def majority(a, b, c):
             """
             a, b, c: binary
             """
-            return (a & b) ^ (a & c) ^ (b & c)
+            return bin((a & b) ^ (a & c) ^ (b & c))
 
         # Initial array of h-constants
         # First 32 Bits of the fractional parts of the square roots of the first 8 primes. (2..19)
@@ -302,27 +308,65 @@ def sha256(data):
         k = shv.create_k_constants()
 
         for i in range(0, len(k)):
-            print(i)
-            Temp1 = h_ + sigma_one(e_) + choice(e_, f_, g_) + int(k[i]) + int(w[i])
-            Temp2 = sigma_zero(a_) + majority(a_, b_, c_)
-            print(bin(Temp2))
+            print('- - - - - - - - - - - - - - -')
+            print(f'a: {a_}')
+            print(f'b: {b_}')
+            print(f'c: {c_}')
+            print(f'd: {d_}')
+            print(f'e: {e_}')
+            print(f'f: {f_}')
+            print(f'g: {g_}')
+            print(f'h: {h_}')
+            print('- - - - - - - - - - - - - - -')
+            # Create Temps
+            # Temp1 = h + sigma1 + Choice + k[n] + w[n]
+            print(e_)
+            print('Sigma One: ' + sigma_one(e_))
+            print('Choice: ' + choice(e_, f_, g_))
+            # Temp1 = h_ + int(sigma_one(e_)) + int(choice(e_, f_, g_)) + int(k[i], 2) + int(w[i], 2)
+
+            # Update working Variables
             h_ = g_
             g_ = f_
             f_ = e_
-            e_ = d_ + Temp1
+            # e_ = d_ + Temp1
             d_ = c_
             c_ = b_
             b_ = a_
-            a_ = Temp1 + Temp2
+#            a_ = Temp1 + Temp2
 
-        h0 = a_ + int(h[0])
-        h1 = b_ + int(h[1])
-        h2 = c_ + int(h[2])
-        h3 = d_ + int(h[3])
-        h4 = e_ + int(h[4])
-        h5 = f_ + int(h[5])
-        h6 = g_ + int(h[6])
-        h7 = h_ + int(h[7])
+        """for i in range(0, len(k)):
+            print('Working Variables')
+            print(f'a: {bin(a_)}')
+            print(f'b: {bin(b_)}')
+            print(f'c: {bin(c_)}')
+            print(f'd: {bin(d_)}')
+            print(f'e: {bin(e_)}')
+            print(f'f: {bin(f_)}')
+            print(f'g: {bin(g_)}')
+            print(f'h: {bin(h_)}')
+            Temp1 = bin(h_ + int(sigma_one(e_), 2) + int(choice(e_, f_, g_), 2) + int(k[i], 2) + int(w[i], 2))
+            Temp2 = bin(int(sigma_zero(a_), 2) + int(majority(a_, b_, c_), 2))
+            print('TEMP')
+            print(Temp2)
+            print(Temp1)
+            h_ = g_
+            g_ = f_
+            f_ = e_
+            e_ = d_ + int(Temp1, 2)
+            d_ = c_
+            c_ = b_
+            b_ = a_
+            a_ = int(Temp1, 2) + int(Temp2, 2)
+
+        h0 = a_ + int(h[0], 2)
+        h1 = b_ + int(h[1], 2)
+        h2 = c_ + int(h[2], 2)
+        h3 = d_ + int(h[3], 2)
+        h4 = e_ + int(h[4], 2)
+        h5 = f_ + int(h[5], 2)
+        h6 = g_ + int(h[6], 2)
+        h7 = h_ + int(h[7], 2)
 
         print(bin(h0))
         print(h1)
@@ -331,7 +375,7 @@ def sha256(data):
         print(h4)
         print(h5)
         print(h6)
-        print(h7)
+        print(h7)"""
 
     binary_prep = sha_prep()
     message_schedule_list = message_schedule(binary_prep)
