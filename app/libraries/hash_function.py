@@ -58,13 +58,11 @@ def sha256(data):
         rotations : integer
         This function will rotate the binary representation ({rotations} times) to the right.
         """
-        print(value)
         value = str(value)
         rotations = rotations % len(value)
         rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
         remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
         rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
-        print('fdksjkdewsajiaehriktjeksajtkiojsa: ' + str(int(rotated_bits)))
         return str(int(rotated_bits))
 
     def binary_negation(value):
@@ -254,6 +252,19 @@ def sha256(data):
         calculate final hash
         """
 
+        def byte_and(value_1, value_2):
+            """
+            value_1: str or int
+            value_2: str or int
+            output: str
+            """
+            value_1 = int(value_1, 2) if isinstance(value_1, str) else value_1
+            value_2 = int(value_2, 2) if isinstance(value_2, str) else value_2
+
+            result = value_1 & value_2
+
+            return int(bin(result)[2:])
+
         def sigma_one(e):
             """
             e: binary string
@@ -261,7 +272,7 @@ def sha256(data):
             e1 = right_rotate(e, 6)
             e2 = right_rotate(e, 11)
             e3 = right_rotate(e, 25)
-            e4 = int(e1) ^ int(e2) ^ int(e3)
+            e4 = int(e1, 2) ^ int(e2, 2) ^ int(e3, 2)
             return bin(e4)[2:]
 
         def sigma_zero(a):
@@ -273,15 +284,16 @@ def sha256(data):
             a3 = int(right_rotate(a, 22))
             a4 = bin(a1 ^ a2 ^ a3)[2:]
             print('sigma zero: ' + bin(int(a1 ^ a2 ^ a3)))
-            return bin(a1 ^ a2 ^ a3)
+            return a4
 
         def choice(e, f, g):
             """
             e, f, g: binary
             """
-            neg_e = binary_negation(e)
-            choice_ = (e & f) ^ (int(neg_e, 2) & g)
-            return bin(choice_)[2:]
+            not_e = binary_negation(e)
+            choice_1 = byte_and(e, f)
+            choice_2 = byte_and(not_e, g)
+            return int(choice_1) ^ int(choice_2)
 
         def majority(a, b, c):
             """
@@ -294,14 +306,14 @@ def sha256(data):
         h = shv.create_h_constants()
 
         # Working Variables
-        a_ = int(h[0])
-        b_ = int(h[1])
-        c_ = int(h[2])
-        d_ = int(h[3])
-        e_ = int(h[4])
-        f_ = int(h[5])
-        g_ = int(h[6])
-        h_ = int(h[7])
+        a_ = h[0]
+        b_ = h[1]
+        c_ = h[2]
+        d_ = h[3]
+        e_ = h[4]
+        f_ = h[5]
+        g_ = h[6]
+        h_ = h[7]
 
         # Initial array of k-constants
         # First 32 Bits of the fractional parts of the cube roots of the first 64 primes. (2..311)
@@ -322,8 +334,13 @@ def sha256(data):
             # Temp1 = h + sigma1 + Choice + k[n] + w[n]
             print(e_)
             print('Sigma One: ' + sigma_one(e_))
-            print('Choice: ' + choice(e_, f_, g_))
-            # Temp1 = h_ + int(sigma_one(e_)) + int(choice(e_, f_, g_)) + int(k[i], 2) + int(w[i], 2)
+            print('Choice: ' + str(choice(e_, f_, g_)))
+            if len(str(choice(e_, f_, g_))) > 32:
+                print('Trash Program')
+                exit()
+            Temp1 = bin(int(h_, 2) + int(sigma_one(e_), 2) + choice(e_, f_, g_) + int(k[i], 2) + int(w[i], 2))[2:]
+
+            print(Temp1)
 
             # Update working Variables
             h_ = g_
@@ -333,7 +350,7 @@ def sha256(data):
             d_ = c_
             c_ = b_
             b_ = a_
-#            a_ = Temp1 + Temp2
+            # a_ = Temp1 + Temp2
 
         """for i in range(0, len(k)):
             print('Working Variables')
