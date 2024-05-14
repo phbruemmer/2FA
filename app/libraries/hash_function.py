@@ -63,7 +63,8 @@ def sha256(data):
         rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
         remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
         rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
-        return str(int(rotated_bits))
+        print(f"Right rotate input: {value}, rotations: {rotations}, result: {rotated_bits}")
+        return rotated_bits
 
     def binary_negation(value):
         """
@@ -272,6 +273,7 @@ def sha256(data):
             e1 = right_rotate(e, 6)
             e2 = right_rotate(e, 11)
             e3 = right_rotate(e, 25)
+            print(f'e1: {e1}, e2: {e2}, e3: {e3}')
             e4 = int(e1, 2) ^ int(e2, 2) ^ int(e3, 2)
             return bin(e4)[2:]
 
@@ -293,7 +295,9 @@ def sha256(data):
             not_e = binary_negation(e)
             choice_1 = byte_and(e, f)
             choice_2 = byte_and(not_e, g)
-            return int(choice_1) ^ int(choice_2)
+            print(f'not_e: {not_e}, choice_1: {choice_1}, choice_2: {choice_2}')
+            result = int(choice_1) ^ int(choice_2)
+            return format(result, 'b')  # Return result as binary string
 
         def majority(a, b, c):
             """
@@ -340,20 +344,20 @@ def sha256(data):
             print('Sigma One: ' + sigma_one(e_))
             print('Choice: ' + str(choice(e_, f_, g_)))
 
-            Temp1 = int(bin((int(h_, 2) + int(sigma_one(e_), 2) + choice(e_, f_, g_) + int(k[i], 2) + int(w[i], 2)) &
+            Temp1 = int(bin((int(h_, 2) + int(sigma_one(e_), 2) + int(choice(e_, f_, g_)) + int(k[i], 2) + int(w[i], 2)) &
                             0xFFFFFFFF)[2:])
 
             Temp2 = int(format((int(sigma_zero(a_)) + majority(a_, b_, c_)) & 0xFFFFFFFF, '032b'))
-            print(Temp2)
+            print('temp ' + str(Temp2))
 
             # Update working Variables
-            h_ = g_
-            g_ = f_
-            f_ = e_
+            h_ = str(g_)
+            g_ = str(f_)
+            f_ = str(e_)
             e_ = str(int(d_) + Temp1)
-            d_ = c_
-            c_ = b_
-            b_ = a_
+            d_ = str(c_)
+            c_ = str(b_)
+            b_ = str(a_)
             a_ = str(Temp1 + Temp2)
 
         """for i in range(0, len(k)):
