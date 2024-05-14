@@ -299,7 +299,11 @@ def sha256(data):
             """
             a, b, c: binary
             """
-            return bin((a & b) ^ (a & c) ^ (b & c))
+            maj_1 = byte_and(a, b)
+            maj_2 = byte_and(a, c)
+            maj_3 = byte_and(b, c)
+
+            return int(maj_1) ^ int(maj_2) ^ int(maj_3)
 
         # Initial array of h-constants
         # First 32 Bits of the fractional parts of the square roots of the first 8 primes. (2..19)
@@ -335,22 +339,22 @@ def sha256(data):
             print(e_)
             print('Sigma One: ' + sigma_one(e_))
             print('Choice: ' + str(choice(e_, f_, g_)))
-            if len(str(choice(e_, f_, g_))) > 32:
-                print('Trash Program')
-                exit()
-            Temp1 = bin(int(h_, 2) + int(sigma_one(e_), 2) + choice(e_, f_, g_) + int(k[i], 2) + int(w[i], 2))[2:]
 
-            print(Temp1)
+            Temp1 = int(bin((int(h_, 2) + int(sigma_one(e_), 2) + choice(e_, f_, g_) + int(k[i], 2) + int(w[i], 2)) &
+                            0xFFFFFFFF)[2:])
+
+            Temp2 = int(format((int(sigma_zero(a_)) + majority(a_, b_, c_)) & 0xFFFFFFFF, '032b'))
+            print(Temp2)
 
             # Update working Variables
             h_ = g_
             g_ = f_
             f_ = e_
-            # e_ = d_ + Temp1
+            e_ = str(int(d_) + Temp1)
             d_ = c_
             c_ = b_
             b_ = a_
-            # a_ = Temp1 + Temp2
+            a_ = str(Temp1 + Temp2)
 
         """for i in range(0, len(k)):
             print('Working Variables')
