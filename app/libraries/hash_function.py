@@ -266,6 +266,35 @@ def sha256(data):
 
             return int(bin(result)[2:])
 
+        def add_binary(bin1, bin2):
+            # Ensure both strings are the same length by padding with leading zeros
+            max_len = max(len(bin1), len(bin2))
+            bin1 = bin1.zfill(max_len)
+            bin2 = bin2.zfill(max_len)
+
+            # Initialize the result and carry
+            result = ''
+            carry = 0
+
+            # Iterate over the binary numbers from right to left
+            for i in range(max_len - 1, -1, -1):
+                bit1 = int(bin1[i])
+                bit2 = int(bin2[i])
+
+                # Calculate the sum and the carry
+                total = bit1 + bit2 + carry
+                bit_sum = total % 2
+                carry = total // 2
+
+                # Append the bit_sum to the result
+                result = str(bit_sum) + result
+
+            # If there's a carry left at the end, append it to the result
+            if carry:
+                result = '1' + result
+
+            return result
+
         def sigma_one(e):
             """
             e: binary string
@@ -344,21 +373,21 @@ def sha256(data):
             print('Sigma One: ' + sigma_one(e_))
             print('Choice: ' + str(choice(e_, f_, g_)))
 
-            Temp1 = int(bin((int(h_, 2) + int(sigma_one(e_), 2) + int(choice(e_, f_, g_)) + int(k[i], 2) + int(w[i], 2)) &
-                            0xFFFFFFFF)[2:])
-
+            Temp1 = bin((int(h_, 2) + int(sigma_one(e_), 2) + int(choice(e_, f_, g_)) + int(k[i], 2) + int(w[i], 2)) &
+                            0xFFFFFFFF)[2:]
+            print(Temp1)
             Temp2 = int(format((int(sigma_zero(a_)) + majority(a_, b_, c_)) & 0xFFFFFFFF, '032b'))
             print('temp ' + str(Temp2))
 
             # Update working Variables
-            h_ = str(g_)
-            g_ = str(f_)
-            f_ = str(e_)
-            e_ = str(int(d_) + Temp1)
-            d_ = str(c_)
-            c_ = str(b_)
-            b_ = str(a_)
-            a_ = str(Temp1 + Temp2)
+            h_ = g_
+            g_ = f_
+            f_ = e_
+            e_ = add_binary(d_, Temp1)
+            d_ = c_
+            c_ = b_
+            b_ = a_
+            a_ = str(int(Temp1) + Temp2)
 
         """for i in range(0, len(k)):
             print('Working Variables')
