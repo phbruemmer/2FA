@@ -310,11 +310,12 @@ def sha256(data):
             """
             a: binary string
             """
+            a = format(int(a) & 0xFFFFFFFF)
             a1 = int(right_rotate(a, 2))
             a2 = int(right_rotate(a, 13))
             a3 = int(right_rotate(a, 22))
             a4 = bin(a1 ^ a2 ^ a3)[2:]
-            print('sigma zero: ' + bin(int(a1 ^ a2 ^ a3)))
+            print('sigma zero: ' + a4)
             return a4
 
         def choice(e, f, g):
@@ -332,6 +333,9 @@ def sha256(data):
             """
             a, b, c: binary
             """
+            print(a)
+            print(b)
+            print(c)
             maj_1 = byte_and(a, b)
             maj_2 = byte_and(a, c)
             maj_3 = byte_and(b, c)
@@ -387,7 +391,33 @@ def sha256(data):
             d_ = c_
             c_ = b_
             b_ = a_
-            a_ = str(int(Temp1) + Temp2)
+            a_ = str(add_binary(Temp1, str(Temp2)))
+
+        print('- - -')
+        print('Loop finished!')
+        print('- - -')
+        print('- - - - - - - - - - - - - - -')
+        print(f'a: {a_}')
+        print(f'b: {b_}')
+        print(f'c: {c_}')
+        print(f'd: {d_}')
+        print(f'e: {e_}')
+        print(f'f: {f_}')
+        print(f'g: {g_}')
+        print(f'h: {h_}')
+        print('- - - - - - - - - - - - - - -')
+        h0 = add_binary(a_, (h[0]))
+        h1 = add_binary(b_, h[1])
+        h2 = add_binary(c_, h[2])
+        h3 = add_binary(d_, h[3])
+        h4 = add_binary(e_, h[4])
+        h5 = add_binary(f_, h[5])
+        h6 = add_binary(g_, h[6])
+        h7 = add_binary(h_, h[7])
+
+
+        # Update hash values
+
 
         """for i in range(0, len(k)):
             print('Working Variables')
