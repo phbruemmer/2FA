@@ -1,4 +1,5 @@
 from statics import static_hash_values as shv
+
 """
 - - - - - - - - - - -
 Hashfunction - Encryption
@@ -243,9 +244,9 @@ def sha256(data):
                 INCREMENTAL_W14 += 1
 
         # Function sequence
-        block512_data = block512()      # Separates the data into 512 bit chunks
-        prep_w(block512_data[0])        # Prepares the w-list -> adds (only) the first 512 bits
-        calculate_w_values()            # Calculates the following wX - Values (16..63)
+        block512_data = block512()  # Separates the data into 512 bit chunks
+        prep_w(block512_data[0])  # Prepares the w-list -> adds (only) the first 512 bits
+        calculate_w_values()  # Calculates the following wX - Values (16..63)
         return w
 
     def start_hashing(w):
@@ -267,29 +268,19 @@ def sha256(data):
             return int(bin(result)[2:])
 
         def add_binary(bin1, bin2):
-            # Ensure both strings are the same length by padding with leading zeros
-            max_len = max(len(bin1), len(bin2))
-            bin1 = bin1.zfill(max_len)
-            bin2 = bin2.zfill(max_len)
+            bin_length = max(len(bin1), len(bin2))
+            bin1 = bin1.zfill(bin_length)
+            bin2 = bin2.zfill(bin_length)
 
-            # Initialize the result and carry
             result = ''
             carry = 0
 
-            # Iterate over the binary numbers from right to left
-            for i in range(max_len - 1, -1, -1):
-                bit1 = int(bin1[i])
-                bit2 = int(bin2[i])
-
-                # Calculate the sum and the carry
-                total = bit1 + bit2 + carry
-                bit_sum = total % 2
-                carry = total // 2
-
-                # Append the bit_sum to the result
+            for q in range(bin_length - 1, -1, -1):
+                temp_value = int(bin1[q]) + int(bin2[q]) + carry
+                bit_sum = temp_value % 2
+                carry = temp_value // 2
                 result = str(bit_sum) + result
 
-            # If there's a carry left at the end, append it to the result
             if carry:
                 result = '1' + result
 
@@ -377,10 +368,11 @@ def sha256(data):
             print('Sigma One: ' + sigma_one(e_))
             print('Choice: ' + str(choice(e_, f_, g_)))
 
-            Temp1 = bin((int(h_, 2) + int(sigma_one(e_), 2) + int(choice(e_, f_, g_)) + int(k[i], 2) + int(w[i], 2)) &
-                            0xFFFFFFFF)[2:]
+            t1_1 = add_binary(str(int(h_, 2)), str(int(sigma_one(e_), 2)))
+            t1_2 = add_binary(str(int(k[i], 2)), str(int(w[i], 2)))
+            Temp1 = bin(int(add_binary(t1_1, t1_2)) & 0xFFFFFFFF)[2:]
             print(Temp1)
-            Temp2 = int(format((int(sigma_zero(a_)) + majority(a_, b_, c_)) & 0xFFFFFFFF, '032b'))
+            Temp2 = int(format((int(add_binary(sigma_zero(a_), str(majority(a_, b_, c_))))) & 0xFFFFFFFF, '032b'))
             print('temp ' + str(Temp2))
 
             # Update working Variables
@@ -415,55 +407,188 @@ def sha256(data):
         h6 = add_binary(g_, h[6])
         h7 = add_binary(h_, h[7])
 
-
-        # Update hash values
-
-
-        """for i in range(0, len(k)):
-            print('Working Variables')
-            print(f'a: {bin(a_)}')
-            print(f'b: {bin(b_)}')
-            print(f'c: {bin(c_)}')
-            print(f'd: {bin(d_)}')
-            print(f'e: {bin(e_)}')
-            print(f'f: {bin(f_)}')
-            print(f'g: {bin(g_)}')
-            print(f'h: {bin(h_)}')
-            Temp1 = bin(h_ + int(sigma_one(e_), 2) + int(choice(e_, f_, g_), 2) + int(k[i], 2) + int(w[i], 2))
-            Temp2 = bin(int(sigma_zero(a_), 2) + int(majority(a_, b_, c_), 2))
-            print('TEMP')
-            print(Temp2)
-            print(Temp1)
-            h_ = g_
-            g_ = f_
-            f_ = e_
-            e_ = d_ + int(Temp1, 2)
-            d_ = c_
-            c_ = b_
-            b_ = a_
-            a_ = int(Temp1, 2) + int(Temp2, 2)
-
-        h0 = a_ + int(h[0], 2)
-        h1 = b_ + int(h[1], 2)
-        h2 = c_ + int(h[2], 2)
-        h3 = d_ + int(h[3], 2)
-        h4 = e_ + int(h[4], 2)
-        h5 = f_ + int(h[5], 2)
-        h6 = g_ + int(h[6], 2)
-        h7 = h_ + int(h[7], 2)
-
-        print(bin(h0))
+        print(h0)
         print(h1)
         print(h2)
         print(h3)
         print(h4)
         print(h5)
-        print(h6)
-        print(h7)"""
+        print(len(h6))
+        print(h7)
 
     binary_prep = sha_prep()
     message_schedule_list = message_schedule(binary_prep)
     start_hashing(message_schedule_list)
 
 
-sha256('abc')
+# sha256('abc')
+
+
+
+
+
+
+"""
+*
+*
+*
+*
+*
+*
+*
+*   
+*
+*
+*   TESTING AREA - TESTING AREA - TESTING AREA - TESTING AREA - TESTING AREA 
+*   
+*
+*
+*
+*
+*
+*
+*
+*
+"""
+
+
+
+
+
+
+def right_rotate(value, rotations):
+    """
+        value : binary string
+        rotations : integer
+        This function will rotate the binary representation ({rotations} times) to the right.
+        """
+    value = str(value)
+    rotations = rotations % len(value)
+    rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
+    remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
+    rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
+    print(f"Right rotate input: {value}, rotations: {rotations}, result: {rotated_bits}")
+    return rotated_bits
+
+
+def binary_negation(value):
+    """
+        value: binary string
+        Loops through {value} and swaps every 1 with a 0
+        return: string
+        """
+    value = str(value)
+    inverse_str = ''
+    for i in value:
+        if i == '1':
+            inverse_str += '0'
+        else:
+            inverse_str += '1'
+    return inverse_str
+
+
+def byte_and(value_1, value_2):
+    """
+    value_1: str or int
+    value_2: str or int
+    output: str
+    """
+    value_1 = int(value_1, 2) if isinstance(value_1, str) else value_1
+    value_2 = int(value_2, 2) if isinstance(value_2, str) else value_2
+
+    result = value_1 & value_2
+
+    return bin(result)[2:]
+
+
+def sigma_one(e):
+    """
+    e: binary string
+    """
+    e1 = right_rotate(e, 6)
+    e2 = right_rotate(e, 11)
+    e3 = right_rotate(e, 25)
+    print(f'e1: {e1}, e2: {e2}, e3: {e3}')
+    e4 = int(e1, 2) ^ int(e2, 2) ^ int(e3, 2)
+    return bin(e4)[2:]
+
+
+def sigma_zero(a):
+    """
+    a: binary string
+    """
+    a = format(int(a) & 0xFFFFFFFF)
+    a1 = int(right_rotate(a, 2))
+    a2 = int(right_rotate(a, 13))
+    a3 = int(right_rotate(a, 22))
+    a4 = bin(a1 ^ a2 ^ a3)[2:]
+    print('sigma zero: ' + a4)
+    return a4
+
+
+def choice(e, f, g):
+    """
+    e, f, g: binary
+    """
+    not_e = binary_negation(e)
+    choice_1 = byte_and(e, f)
+    choice_2 = byte_and(not_e, g)
+    print(f'not_e: {not_e}, choice_1: {choice_1}, choice_2: {choice_2}')
+    result = int(choice_1) ^ int(choice_2)
+    return format(result, 'b')  # Return result as binary string
+
+
+def xor(x1, x2):
+    bin_length = max(len(x1), len(x2))
+
+    x1 = x1.zfill(bin_length)
+    x2 = x2.zfill(bin_length)
+
+    result = ''
+
+    for q in range(bin_length - 1, -1, -1):
+        if x1[q] == x2[q]:
+            result += '0'
+        else:
+            result += '1'
+    return result
+
+def or_operator(x1, x2):
+    bin_length = max(len(x1), len(x2))
+
+    x1 = x1.zfill(bin_length)
+    x2 = x2.zfill(bin_length)
+
+    result = ''
+
+    for q in range(bin_length - 1, -1, -1):
+        if x1[q] == '1' or x2[q] == '1':
+            result += '1'
+        else:
+            result += '0'
+    return result
+
+def majority(a, b, c):
+    """
+    a, b, c: binary
+    """
+    bin_length = max(len(a), len(b), len(c))
+
+    a = a.zfill(bin_length)
+    b = b.zfill(bin_length)
+    c = c.zfill(bin_length)
+
+    maj_1 = byte_and(a, b)
+    maj_2 = byte_and(a, c)
+    maj_3 = byte_and(b, c)
+
+    print(maj_1)
+    print(maj_2)
+    print(maj_3)
+    temp_xor = or_operator(maj_1, maj_2)
+
+    return xor(temp_xor, maj_3)
+
+
+print(majority('11010011100110100010000101100101', '00000100110100100100110101101100',
+               '10111000010111100010110011101001'))
