@@ -546,13 +546,12 @@ def xor(x1, x2):
 
     result = ''
 
-    for q in range(bin_length - 1, -1, -1):
+    for q in range(bin_length - 1):
         if x1[q] == x2[q]:
             result += '0'
         else:
             result += '1'
     return result
-
 def or_operator(x1, x2):
     bin_length = max(len(x1), len(x2))
 
