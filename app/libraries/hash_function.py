@@ -82,6 +82,18 @@ def sha256(data):
                 inverse_str += '1'
         return inverse_str
 
+    def remove_single_bits(value, length):
+        """
+        value : binary string
+        length : needed length
+        This function will remove the first bits of every binary representation
+        if the length is smaller than the actual binary length.
+        """
+        if len(value) > length:
+            removable_bit_amount = len(value) - length
+            value = value[removable_bit_amount:]
+        return value
+
     def sha_prep():
         binary_list = []
 
@@ -143,18 +155,6 @@ def sha256(data):
                 zeros += '0'
             shifted_bits = zeros + rem_bits
             return shifted_bits
-
-        def remove_single_bits(value, length):
-            """
-            value : binary string
-            length : needed length
-            This function will remove the first bits of every binary representation
-            if the length is smaller than the actual binary length.
-            """
-            if len(value) > length:
-                removable_bit_amount = len(value) - length
-                value = value[removable_bit_amount:]
-            return value
 
         def block512():
             """
@@ -391,13 +391,15 @@ def sha256(data):
             print('Sigma One: ' + sigma_one(e_))
             print('Choice: ' + str(choice(e_, f_, g_)))
 
-            t1_1 = add_binary(str(int(h_, 2)), str(int(sigma_one(e_), 2)))
-            t1_2 = add_binary(str(int(k[i], 2)), str(int(w[i], 2)))
+            t1_1 = add_binary(h_, sigma_one(e_))
+            t1_2 = add_binary(k[i], w[i])
             t1_3 = add_binary(t1_1, t1_2)
-            Temp1 = bin(int(add_binary(t1_3, choice(e_, f_, g_))) & 0xFFFFFFFF)[2:]
+            Temp1 = add_binary(t1_3, choice(e_, f_, g_))
+            Temp1 = remove_single_bits(Temp1, 32)
             print('Temp1: ' + Temp1)
-            Temp2 = int(format((int(add_binary(sigma_zero(a_), str(majority(a_, b_, c_))))) & 0xFFFFFFFF, '032b'))
-            print('Temp2: ' + str(Temp2))
+            Temp2 = add_binary(sigma_zero(a_), majority(a_, b_, c_))
+            Temp2 = remove_single_bits(Temp2, 32)
+            print('Temp2: ' + Temp2)
 
             # Update working Variables
             h_ = g_
@@ -407,7 +409,7 @@ def sha256(data):
             d_ = c_
             c_ = b_
             b_ = a_
-            a_ = str(add_binary(Temp1, str(Temp2)))
+            a_ = str(add_binary(Temp1, Temp2))
 
         print('- - -')
         print('Loop finished!')
