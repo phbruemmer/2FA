@@ -251,6 +251,7 @@ def sha256(data):
 
     def start_hashing(w):
         """
+        w: w_list
         calculate final hash
         """
 
@@ -268,6 +269,11 @@ def sha256(data):
             return bin(result)[2:]
 
         def xor(x1, x2):
+            """
+            x1: binary string
+            x2: binary string
+            This function creates a new string where a 1 is added when two values are different. (Xor)
+            """
             if not (set(x1) <= {'0', '1'} and set(x2) <= {'0', '1'}):
                 raise ValueError("Input must be a binary string!")
 
@@ -287,6 +293,11 @@ def sha256(data):
             return result
 
         def add_binary(bin1, bin2):
+            """
+            bin1: binary string
+            bin2: binary string
+            This function adds two binary strings together.
+            """
             bin_length = max(len(bin1), len(bin2))
             bin1 = bin1.zfill(bin_length)
             bin2 = bin2.zfill(bin_length)
