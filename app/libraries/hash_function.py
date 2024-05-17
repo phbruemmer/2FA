@@ -539,6 +539,9 @@ def choice(e, f, g):
 
 
 def xor(x1, x2):
+    if not (set(x1) <= {'0', '1'} and set(x2) <= {'0', '1'}):
+        raise ValueError("Eingaben müssen binäre Strings sein")
+
     bin_length = max(len(x1), len(x2))
 
     x1 = x1.zfill(bin_length)
@@ -546,12 +549,15 @@ def xor(x1, x2):
 
     result = ''
 
-    for q in range(bin_length - 1):
+    for q in range(bin_length):
         if x1[q] == x2[q]:
             result += '0'
         else:
             result += '1'
+
     return result
+
+
 def or_operator(x1, x2):
     bin_length = max(len(x1), len(x2))
 
@@ -584,7 +590,8 @@ def majority(a, b, c):
     print(maj_1)
     print(maj_2)
     print(maj_3)
-    temp_xor = or_operator(maj_1, maj_2)
+    temp_xor = xor(maj_1, maj_2)
+    print('hasjfhsdajg: ' + temp_xor)
 
     return xor(temp_xor, maj_3)
 
