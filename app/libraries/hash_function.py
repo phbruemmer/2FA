@@ -376,75 +376,54 @@ def sha256(data):
         k = shv.create_k_constants()
 
         for i in range(0, len(k)):
-            print('- - - - - - - ' + str(i + 50) + ' - - - - - - - -')
-            print(f'a: {a_}')
-            print(f'b: {b_}')
-            print(f'c: {c_}')
-            print(f'd: {d_}')
-            print(f'e: {e_}')
-            print(f'f: {f_}')
-            print(f'g: {g_}')
-            print(f'h: {h_}')
-            print('- - - - - - - - - - - - - - -')
             # Create Temps
             # Temp1 = h + sigma1 + Choice + k[n] + w[n]
-            print('Sigma One: ' + sigma_one(e_))
-            print('Choice: ' + str(choice(e_, f_, g_)))
 
             t1_1 = add_binary(h_, sigma_one(e_))
             t1_2 = add_binary(k[i], w[i])
             t1_3 = add_binary(t1_1, t1_2)
+
             Temp1 = add_binary(t1_3, choice(e_, f_, g_))
             Temp1 = remove_single_bits(Temp1, 32)
-            print('Temp1: ' + Temp1)
+
             Temp2 = add_binary(sigma_zero(a_), majority(a_, b_, c_))
             Temp2 = remove_single_bits(Temp2, 32)
-            print('Temp2: ' + Temp2)
 
             # Update working Variables
             h_ = g_
             g_ = f_
             f_ = e_
-            e_ = add_binary(d_, Temp1)
+            e_ = remove_single_bits(add_binary(d_, Temp1), 32)
             d_ = c_
             c_ = b_
             b_ = a_
-            a_ = str(add_binary(Temp1, Temp2))
+            a_ = remove_single_bits(add_binary(Temp1, Temp2), 32)
 
-        print('- - -')
-        print('Loop finished!')
-        print('- - -')
-        print('- - - - - - - - - - - - - - -')
-        print(f'a: {a_}')
-        print(f'b: {b_}')
-        print(f'c: {c_}')
-        print(f'd: {d_}')
-        print(f'e: {e_}')
-        print(f'f: {f_}')
-        print(f'g: {g_}')
-        print(f'h: {h_}')
-        print('- - - - - - - - - - - - - - -')
-        h0 = add_binary(a_, (h[0]))
-        h1 = add_binary(b_, h[1])
-        h2 = add_binary(c_, h[2])
-        h3 = add_binary(d_, h[3])
-        h4 = add_binary(e_, h[4])
-        h5 = add_binary(f_, h[5])
-        h6 = add_binary(g_, h[6])
-        h7 = add_binary(h_, h[7])
+        h0 = remove_single_bits(add_binary(a_, (h[0])), 32)
+        h1 = remove_single_bits(add_binary(b_, h[1]), 32)
+        h2 = remove_single_bits(add_binary(c_, h[2]), 32)
+        h3 = remove_single_bits(add_binary(d_, h[3]), 32)
+        h4 = remove_single_bits(add_binary(e_, h[4]), 32)
+        h5 = remove_single_bits(add_binary(f_, h[5]), 32)
+        h6 = remove_single_bits(add_binary(g_, h[6]), 32)
+        h7 = remove_single_bits(add_binary(h_, h[7]), 32)
 
-        print(h0)
-        print(h1)
-        print(h2)
-        print(h3)
-        print(h4)
-        print(h5)
-        print(h6)
-        print(h7)
+        result = hex(int(h0, 2))[2:]
+        result += hex(int(h1, 2))[2:]
+        result += hex(int(h2, 2))[2:]
+        result += hex(int(h3, 2))[2:]
+        result += hex(int(h4, 2))[2:]
+        result += hex(int(h5, 2))[2:]
+        result += hex(int(h6, 2))[2:]
+        result += hex(int(h7, 2))[2:]
+        return result
 
     binary_prep = sha_prep()
     message_schedule_list = message_schedule(binary_prep)
-    start_hashing(message_schedule_list)
+    final_hash = start_hashing(message_schedule_list)
+    return final_hash
 
 
-sha256('abc')
+print(sha256('abc'))
+
+# ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
