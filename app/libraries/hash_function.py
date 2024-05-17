@@ -331,9 +331,12 @@ def sha256(data):
             """
             e, f, g: binary
             """
+            e = e.zfill(32)
+            f = f.zfill(32)
+            g = g.zfill(32)
             not_e = binary_negation(e)
-            choice_1 = byte_and(e, f)
-            choice_2 = byte_and(not_e, g)
+            choice_1 = byte_and(e, f).zfill(32)
+            choice_2 = byte_and(not_e, g).zfill(32)
             result = xor(choice_1, choice_2)
             return result  # Return result as binary string
 
