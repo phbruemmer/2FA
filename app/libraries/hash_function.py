@@ -64,7 +64,7 @@ def sha256(data):
         rot_bits = value[-rotations:]  # Gets the last (-rotation) Bits
         remaining_bits = value[:-rotations]  # Gets the first (rotation) Bits
         rotated_bits = rot_bits + remaining_bits  # Last Bits added in front of the first bits
-        print(f"Right rotate input: {value}, rotations: {rotations}, result: {rotated_bits}")
+        # print(f"Right rotate input: {value}, rotations: {rotations}, result: {rotated_bits}")
         return rotated_bits
 
     def binary_negation(value):
@@ -312,7 +312,6 @@ def sha256(data):
             e1 = right_rotate(e, 6)
             e2 = right_rotate(e, 11)
             e3 = right_rotate(e, 25)
-            print(f'e1: {e1}, e2: {e2}, e3: {e3}')
             temp_e = xor(e1, e2)
             e4 = xor(temp_e, e3)
             return e4
@@ -326,7 +325,6 @@ def sha256(data):
             a3 = right_rotate(a, 22)
             temp_a = xor(a1, a2)
             a4 = xor(temp_a, a3)
-            print('sigma zero: ' + a4)
             return a4
 
         def choice(e, f, g):
@@ -336,7 +334,6 @@ def sha256(data):
             not_e = binary_negation(e)
             choice_1 = byte_and(e, f)
             choice_2 = byte_and(not_e, g)
-            print(f'not_e: {not_e}, choice_1: {choice_1}, choice_2: {choice_2}')
             result = xor(choice_1, choice_2)
             return result  # Return result as binary string
 
@@ -376,7 +373,7 @@ def sha256(data):
         k = shv.create_k_constants()
 
         for i in range(0, len(k)):
-            print('- - - - - - - - - - - - - - -')
+            print('- - - - - - - ' + str(i + 50) + ' - - - - - - - -')
             print(f'a: {a_}')
             print(f'b: {b_}')
             print(f'c: {c_}')
@@ -388,7 +385,6 @@ def sha256(data):
             print('- - - - - - - - - - - - - - -')
             # Create Temps
             # Temp1 = h + sigma1 + Choice + k[n] + w[n]
-            print(e_)
             print('Sigma One: ' + sigma_one(e_))
             print('Choice: ' + str(choice(e_, f_, g_)))
 
@@ -396,9 +392,9 @@ def sha256(data):
             t1_2 = add_binary(str(int(k[i], 2)), str(int(w[i], 2)))
             t1_3 = add_binary(t1_1, t1_2)
             Temp1 = bin(int(add_binary(t1_3, choice(e_, f_, g_))) & 0xFFFFFFFF)[2:]
-            print('Temp1 ' + Temp1)
+            print('Temp1: ' + Temp1)
             Temp2 = int(format((int(add_binary(sigma_zero(a_), str(majority(a_, b_, c_))))) & 0xFFFFFFFF, '032b'))
-            print('temp ' + str(Temp2))
+            print('Temp2: ' + str(Temp2))
 
             # Update working Variables
             h_ = g_
