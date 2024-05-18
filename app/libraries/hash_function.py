@@ -10,47 +10,6 @@ The function creates a code (for example 256 Bits long) and encrypts the data wi
 The Code is always the same for the same text but will change if you change something.
 """
 
-DEBUG = False
-
-
-def get_bin(binary_data):
-    binary_data = binary_data.replace(' ', '')
-    binary_data = binary_data.replace('\n', '')
-    print(f'DEBUG - get_bin() -> {binary_data}')
-    i = 0
-    data_str = ''
-    data_list = []
-    for data in binary_data:
-        data_str += data
-        i += 1
-        if (i % 8) == 0:
-            data_list.append(data_str)
-            data_str = ''
-
-    print(f'DEBUG - get_bin() -> {len(data_list)}')
-    print(f'DEBUG - get_bin() -> {len(data_list) * 8}')
-    return data_list
-
-
-def compare(data):
-    result = True
-    bin_to_compare = get_bin(""" """)
-    print(f'DEBUG - compare() -> {bin_to_compare}')
-
-    failed_list = []
-
-    for i in range(0, len(data)):
-        if DEBUG:
-            print(data[i])
-            # print(bin_to_compare[i])
-            print(i)
-        """if not bin_to_compare[i] == data[i]:
-            failed_list.append([bin_to_compare[i], data[i], i])
-            result = False"""
-    print(failed_list)
-
-    return result
-
 
 def sha256(data):
     def right_rotate(value, rotations):
@@ -282,15 +241,15 @@ def sha256(data):
             x1 = x1.zfill(bin_length)
             x2 = x2.zfill(bin_length)
 
-            result = ''
+            xor_result = ''
 
             for q in range(bin_length):
                 if x1[q] == x2[q]:
-                    result += '0'
+                    xor_result += '0'
                 else:
-                    result += '1'
+                    xor_result += '1'
 
-            return result
+            return xor_result
 
         def add_binary(bin1, bin2):
             """
@@ -302,19 +261,19 @@ def sha256(data):
             bin1 = bin1.zfill(bin_length)
             bin2 = bin2.zfill(bin_length)
 
-            result = ''
+            binary_result = ''
             carry = 0
 
             for q in range(bin_length - 1, -1, -1):
                 temp_value = int(bin1[q]) + int(bin2[q]) + carry
                 bit_sum = temp_value % 2
                 carry = temp_value // 2
-                result = str(bit_sum) + result
+                binary_result = str(bit_sum) + binary_result
 
             if carry:
-                result = '1' + result
+                binary_result = '1' + binary_result
 
-            return result
+            return binary_result
 
         def sigma_one(e):
             """
@@ -435,6 +394,6 @@ def sha256(data):
     return final_hash
 
 
-print(sha256('abc'))
+print(sha256('Hallo Welt!'))
 
 # ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
