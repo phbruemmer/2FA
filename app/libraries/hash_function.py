@@ -156,14 +156,14 @@ def sha256(data):
             # Create Temps
             # Temp1 = h + sigma1 + Choice + k[n] + w[n]
 
-            t1_1 = lo.add_binary(h_, hc.sigma_one(e_))
+            t1_1 = lo.add_binary(h_, hc.sigma_one_hashing(e_))
             t1_2 = lo.add_binary(k[i], w[i])
             t1_3 = lo.add_binary(t1_1, t1_2)
 
             Temp1 = lo.add_binary(t1_3, hc.choice(e_, f_, g_))
             Temp1 = hc.remove_single_bits(Temp1, 32)
 
-            Temp2 = lo.add_binary(hc.sigma_zero(a_), hc.majority(a_, b_, c_))
+            Temp2 = lo.add_binary(hc.sigma_zero_hashing(a_), hc.majority(a_, b_, c_))
             Temp2 = hc.remove_single_bits(Temp2, 32)
 
             # Update working Variables

@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
 from .libraries import register_user_verification, send_email, check
+from .libraries import hash_function as hf
 from .models import *
 
 
@@ -79,8 +80,14 @@ def verify(request, username, verify_code):
 
 
 def register(request):
-    def register_user_in_database():
-        register_user = TempUser(username=username, user_email=user_email, user_password=user_password)
+    """
+    Important future changes:
+        - Put the Password / e-mail / username validation check function in the front-end of the application.
+    """
+
+    def register_user_in_database(_user_password):
+        new_user_password = hf.sha256(_user_password)
+        register_user = TempUser(username=username, user_email=user_email, user_password=new_user_password)
 
         """
             - Check data before saving the User in the Database

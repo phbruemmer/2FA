@@ -1,3 +1,18 @@
+def shift_right(value, shifts):
+    """
+    value : binary string
+    shifts : integer
+    This function will shift the binary representation ({shift} times) to the right.
+    """
+    shifts = shifts % len(value)
+    rem_bits = value[:-shifts]
+    zeros = ''
+    for shift in range(0, shifts):
+        zeros += '0'
+    shifted_bits = zeros + rem_bits
+    return shifted_bits
+
+
 def right_rotate(value, rotations):
     """
     value : binary string

@@ -2,6 +2,10 @@ import string
 
 
 def check_password(pw):
+    """
+    pw: password as String
+    This Function checks whether the password is a valid password or not.
+    """
     def check_pw():
         check_lowercase = False
         check_uppercase = False

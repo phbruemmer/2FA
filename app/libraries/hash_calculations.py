@@ -37,11 +37,11 @@ def sigma_one(w_value):
         - right rotate 19
         - right shift 10
     """
-    rr17 = int(lo.right_rotate(w_value, 17).zfill(32), 2)
-    rr19 = int(lo.right_rotate(w_value, 19).zfill(32), 2)
-    rs10 = int(lo.shift_right(w_value, 10).zfill(32), 2)
-
-    return format((rr17 ^ rr19 ^ rs10), '032b')
+    rr17 = lo.right_rotate(w_value, 17).zfill(32)
+    rr19 = lo.right_rotate(w_value, 19).zfill(32)
+    rs10 = lo.shift_right(w_value, 10).zfill(32)
+    temp_val = lo.xor(rr17, rr19)
+    return lo.xor(temp_val, rs10)
 
 
 def sigma_one_hashing(e):
