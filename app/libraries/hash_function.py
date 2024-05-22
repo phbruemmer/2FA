@@ -57,7 +57,6 @@ def sha256(data):
 
         for i in range(0, k_len_binary_length, 8):
             binary_list.append(data_len[i:i + 8])
-        print(binary_list)
         return binary_list
 
     def message_schedule(msg_data_block):
