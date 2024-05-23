@@ -1,6 +1,6 @@
-from statics import static_hash_values as shv
-import logical_operators as lo
-import hash_calculations as hc
+from .statics import static_hash_values as shv
+from . import logical_operators as lo
+from . import hash_calculations as hc
 
 """
 - - - - - - - - - - -

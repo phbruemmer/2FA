@@ -126,7 +126,7 @@ def register(request):
                 if existing_objs_email is None and existing_objs_username is None:
                     print('verifying user credentials...')
                     print("Creating new User...")
-                    register_user_in_database()
+                    register_user_in_database(user_password)
                 else:
                     error_msg = "User already registered!"
             else:
@@ -187,6 +187,9 @@ def login(request):
         'linkText': 'Don\'t have an Account?'
     }
 
+    if request.session.get('login_cookie') == 'login_verified':
+        print("Episch")
+        return redirect(main)
     if request.method == 'POST':
         username = request.POST.get('username')
         user_password = request.POST.get('password')
@@ -234,6 +237,7 @@ def handle_login_code(request, username):
         print(verify_code)
         redirect_to_page = check_database()
         if redirect_to_page[0]:
+            request.session['login_cookie'] = 'login_verified'
             return redirect(main)
         elif redirect_to_page[1]:
             return redirect(login)

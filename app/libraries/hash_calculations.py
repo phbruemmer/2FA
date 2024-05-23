@@ -1,4 +1,4 @@
-import logical_operators as lo
+from . import logical_operators as lo
 
 
 def remove_single_bits(value, length):
