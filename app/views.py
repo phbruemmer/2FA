@@ -4,6 +4,10 @@ from .libraries import register_user_verification, send_email, check
 from .libraries import hash_function as hf
 from .models import *
 
+"""
+You have to add Session cookies
+"""
+
 
 def main(request):
     return HttpResponse('<center><h1>404</h1><br><h2>Page found but there is no content :P</h2></center>')
