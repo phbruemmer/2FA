@@ -10,7 +10,12 @@ You have to add Session cookies
 
 
 def main(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        redirect('login')
+
     return HttpResponse('<center><h1>404</h1><br><h2>Page found but there is no content :P</h2></center>')
+
 
 def rm_user(request):
     try:
@@ -183,7 +188,7 @@ def login(request):
             user_id = db_username_lookup.id
             db_password_lookup = user.get(id=user_id).user_password
             if user_password == db_password_lookup:
-                print('WE ARE IN!!!')
+                request.session['user_id'] = user_id
                 return True
     context = {
         'type': 'login',
@@ -241,7 +246,8 @@ def handle_login_code(request, username):
         print(verify_code)
         redirect_to_page = check_database()
         if redirect_to_page[0]:
-            request.session['login_cookie'] = 'login_verified'
+            user_id = RegisteredUser.get(username=username).id
+            request.session['user_id'] = user_id
             return redirect(main)
         elif redirect_to_page[1]:
             return redirect(login)
