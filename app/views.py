@@ -11,10 +11,12 @@ You have to add Session cookies
 
 def main(request):
     user_id = request.session.get('user_id')
+    user = RegisteredUser.objects.all().get(id=user_id)
+    username = user.username
     if not user_id:
         redirect('login')
 
-    return HttpResponse('<center><h1>404</h1><br><h2>Page found but there is no content :P</h2></center>')
+    return HttpResponse(f'<center><h1>404</h1><br><h2>{username}</h2></center>')
 
 
 def rm_user(request):
@@ -188,7 +190,6 @@ def login(request):
             user_id = db_username_lookup.id
             db_password_lookup = user.get(id=user_id).user_password
             if user_password == db_password_lookup:
-                request.session['user_id'] = user_id
                 return True
     context = {
         'type': 'login',
@@ -202,6 +203,7 @@ def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         user_password = request.POST.get('password')
+        user_password = hf.sha256(user_password)
         if check_database():
             return handle_verify_code()
     return render(request, 'templates/login.html', context)
@@ -246,9 +248,10 @@ def handle_login_code(request, username):
         print(verify_code)
         redirect_to_page = check_database()
         if redirect_to_page[0]:
-            user_id = RegisteredUser.get(username=username).id
+            user_id = RegisteredUser.objects.all().get(username=username).id
+            print("Something")
             request.session['user_id'] = user_id
-            return redirect(main)
+            return redirect('main')
         elif redirect_to_page[1]:
             return redirect(login)
 
