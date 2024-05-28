@@ -13,6 +13,12 @@
         <li><a href="">Files</a></li>
         <li><a href="">Settings</a></li>
       </ul>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit">Log out</button>
+      </form>
     </nav>
+
+    <p>Welcome <b>{{ username }}</b>!</p>
   </body>
 </html>
