@@ -31,6 +31,12 @@ class TempURL(models.Model):
     username = models.CharField(max_length=20)
 
 
+class TempResetCode(models.Model):
+    reset_code = models.CharField(max_length=32,
+                                  help_text='Code used in the URL to change the password.')
+    user_id = models.IntegerField(help_text="User Id - used to identify the user")
+
+
 class TempVerifyCode(models.Model):
     login_code = models.CharField(max_length=6,
                                   help_text='Login verification Code')
