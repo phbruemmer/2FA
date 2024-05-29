@@ -1,17 +1,51 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
-from .libraries import register_user_verification, send_email, check
+from django.shortcuts import render, redirect
+from .libraries import register_user_verification, send_email_templates, check
 from .libraries import hash_function as hf
 from .models import *
 
 
-def reset_password(request):
+def change_password(request, user_id, code):
+    temp_data = TempResetCode.objects.all()
+    try:
+        temp_code_user_id = temp_data.get(user_id=user_id).id
+        if not code == temp_data.filter(id=temp_code_user_id).reset_code:
+            return redirect(login)
+    except Exception as exp:
+        print(exp)
+
     if request.method == 'POST':
         password_1 = request.POST.get('password_1')
         password_2 = request.POST.get('password_2')
+        if not password_1 == password_2 and check.check_password(password_1):
+            print("Passwords don't match!")
+        else:
+            password = hf.sha256(password_1)
+            user_data = RegisteredUser.objects.all().get(id=user_id)
+            user_data.user_password = password
+            user_data.save()
+            temp_data.get(user_id=user_id).delete()
+            return redirect(login)
 
-        if not password_1 == password_2:
-            print("Passwords doesn't match!")
+    return render(request, 'templates/change_password.html')
+
+
+def reset_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user_id = RegisteredUser.objects.all().get(user_email=email).id
+            url, code = register_user_verification.create_recovery_code(user_id)
+            temp_reset = TempResetCode.objects.all()
+            if temp_reset.filter(user_id=user_id):
+                temp_reset.filter(user_id=user_id).delete()
+            temp_recovery_data = TempResetCode(reset_code=code, user_id=user_id)
+            temp_recovery_data.save()
+            send_email_templates.send_reset_request(user_id, code)
+            return redirect(login)
+        except Exception as exp:
+            print(exp)
+
     return render(request, 'templates/reset_password.html')
 
 
@@ -21,6 +55,7 @@ def rm_user(request):
         TempUser.objects.all().delete()
         RegisteredUser.objects.all().delete()
         TempVerifyCode.objects.all().delete()
+        TempResetCode.objects.all().delete()
         ret = 'user objects deleted!'
         print(ret)
     except Exception as ret:
@@ -110,7 +145,7 @@ def register(request):
         verificationURL, verificationCode = register_user_verification.create_custom_url(username)
         tempURL = TempURL(verification_code=verificationCode, username=username)
         tempURL.save()
-        send_email.send_verification(username, verificationCode)
+        send_email_templates.send_verification(username, verificationCode)
         print(verificationURL)
         # Send verificationURL to User
     error_msg = "Password must be at least 5 characters long"
@@ -176,7 +211,7 @@ def login(request):
         tempVerifyCode = TempVerifyCode(login_code=login_code, username=username)
         tempVerifyCode.save()
         print(login_code)
-        send_email.send_2FA_code(login_code)
+        send_email_templates.send_2FA_code(login_code)
         return redirect(handle_login_code, username=username)
 
     def check_database():
@@ -193,9 +228,6 @@ def login(request):
         'linkText': 'Don\'t have an Account?'
     }
 
-    if request.session.get('login_cookie') == 'login_verified':
-        print("Episch")
-        return redirect(main)
     if request.method == 'POST':
         username = request.POST.get('username')
         user_password = request.POST.get('password')

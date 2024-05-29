@@ -10,7 +10,7 @@ def main_view(request):
     username = user.username
     if request.method == 'POST':
         request.session.flush()
-        redirect('accounts/login')
+        return redirect('accounts/login')
 
     context = {
         'username': username
