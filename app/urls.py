@@ -9,4 +9,5 @@ urlpatterns = [
     path(r'verify/<str:username>/<str:verify_code>/', views.verify),
     path('login/', views.login),
     path(r'login/verify_code/<str:username>/', views.handle_login_code, name='handle_login_code'),
+    path(r'login/reset_password/', views.reset_password, name='reset_password'),
 ]

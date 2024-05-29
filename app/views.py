@@ -4,19 +4,15 @@ from .libraries import register_user_verification, send_email, check
 from .libraries import hash_function as hf
 from .models import *
 
-"""
-You have to add Session cookies
-"""
 
+def reset_password(request):
+    if request.method == 'POST':
+        password_1 = request.POST.get('password_1')
+        password_2 = request.POST.get('password_2')
 
-def main(request):
-    user_id = request.session.get('user_id')
-    user = RegisteredUser.objects.all().get(id=user_id)
-    username = user.username
-    if not user_id:
-        redirect('login')
-
-    return HttpResponse(f'<center><h1>404</h1><br><h2>{username}</h2></center>')
+        if not password_1 == password_2:
+            print("Passwords doesn't match!")
+    return render(request, 'templates/reset_password.html')
 
 
 def rm_user(request):
