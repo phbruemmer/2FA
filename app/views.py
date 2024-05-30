@@ -27,7 +27,13 @@ def change_password(request, user_id, code):
             temp_data.get(user_id=user_id).delete()
             return redirect(login)
 
-    return render(request, 'templates/change_password.html')
+    context = {
+        'type': 'Reset Password',
+        'href': '/accounts/login',
+        'linkText': 'Back to login',
+    }
+
+    return render(request, 'templates/change_password.html', context=context)
 
 
 def reset_password(request):
@@ -46,7 +52,13 @@ def reset_password(request):
         except Exception as exp:
             print(exp)
 
-    return render(request, 'templates/reset_password.html')
+    context = {
+        'type': 'Reset Password',
+        'href': '../accounts/login',
+        'linkText': 'Back to login',
+    }
+
+    return render(request, 'templates/reset_password.html', context=context)
 
 
 def rm_user(request):
