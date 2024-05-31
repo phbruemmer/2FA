@@ -1,37 +1,39 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .libraries import register_user_verification, send_email_templates, check
 from .libraries import hash_function as hf
 from .models import *
 
 
 def change_password(request, user_id, code):
-    temp_data = TempResetCode.objects.all()
-    try:
-        temp_code_user_id = temp_data.get(user_id=user_id).id
-        if not code == temp_data.filter(id=temp_code_user_id).reset_code:
-            return redirect(login)
-    except Exception as exp:
-        print(exp)
+    context = {
+        'type': 'Reset Password',
+        'href': '/login/../../',
+        'linkText': 'Back to login',
+    }
+    temp_code_data = get_object_or_404(TempResetCode, user_id=user_id)
+
+    if temp_code_data.reset_code != code:
+        messages.error(request, "Invalid or expired reset code.")
+        return redirect('login')
 
     if request.method == 'POST':
         password_1 = request.POST.get('password_1')
         password_2 = request.POST.get('password_2')
-        if not password_1 == password_2 and check.check_password(password_1):
-            print("Passwords don't match!")
-        else:
-            password = hf.sha256(password_1)
-            user_data = RegisteredUser.objects.all().get(id=user_id)
-            user_data.user_password = password
-            user_data.save()
-            temp_data.get(user_id=user_id).delete()
-            return redirect(login)
 
-    context = {
-        'type': 'Reset Password',
-        'href': '/accounts/login',
-        'linkText': 'Back to login',
-    }
+        if password_1 != password_2:
+            messages.error(request, "Passwords do not match.")
+        elif not check.check_password(password_1):
+            messages.error(request, "Password does not meet criteria.")
+        else:
+            hashed_password = hf.sha256(password_1)
+            user_data = get_object_or_404(RegisteredUser, id=user_id)
+            user_data.user_password = hashed_password
+            user_data.save()
+
+            temp_code_data.delete()
+
+            return redirect(login)
 
     return render(request, 'templates/change_password.html', context=context)
 
@@ -54,7 +56,7 @@ def reset_password(request):
 
     context = {
         'type': 'Reset Password',
-        'href': '../accounts/login',
+        'href': '../',
         'linkText': 'Back to login',
     }
 
