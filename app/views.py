@@ -196,20 +196,6 @@ def register(request):
         'linkText': 'Already have an Account?',
         'help_text': error_msg
     }
-
-    """
-    - - - - - - - - -
-    Daten müssten dann wahrscheinlich irgendwie mit JavaScript im Frontend
-    verschlüsselt werden, mal sehen, ob ich da eine eigene Hash-Funktion für baue
-    - - - - - - - - -
-    Ablauf:
-        - register
-        - Save Data in database
-        - send email to EMAIL-ADRESS
-        - accept email
-            - True: verify data in database
-            - False: delete Data after 10 min
-    """
     return render(request, 'templates/register.html', context)
 
 
