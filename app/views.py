@@ -150,10 +150,6 @@ def register(request):
                 - More security coming soon
         """
 
-        print(username)
-        print(user_email)
-        print(user_password)
-
         register_user.save()  # SAVE USER IN TEMP DATABASE
         print(f'New User added to database - {register_user}')
         verificationURL, verificationCode = register_user_verification.create_custom_url(username)
