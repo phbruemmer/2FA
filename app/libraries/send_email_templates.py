@@ -27,3 +27,4 @@ def send_reset_request(user_id, code):
     http://127.0.0.1:8000/accounts/recover/{user_id}/{code}/
     """
     send(subject, body)
+
